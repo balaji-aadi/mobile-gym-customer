@@ -28,6 +28,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/sessions" element={<SessionsPage />} />
             <Route path="/my-sessions" element={<MySessionPage />} />
+
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/payments" element={<PaymentsPage />} />
             <Route path="/history" element={<HistoryPage />} />
