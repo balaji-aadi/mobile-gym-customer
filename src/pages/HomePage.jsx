@@ -89,7 +89,7 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in bg-custom-cream">
       {/* Hero Section */}
       <section className="relative  bg-primary  text-white">
         <div className="absolute inset-0 bg-black opacity-20"></div>
@@ -143,7 +143,7 @@ const HomePage = () => {
       </section>
 
       {/* Categories Section */}
-      <section className="bg-gray-50 py-20">
+      <section className="bg-custom-cream py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -191,7 +191,7 @@ const HomePage = () => {
       </section>
 
       {/* Featured Sessions */}
-      <section className="bg-white py-20">
+      <section className="bg-custom-cream py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">

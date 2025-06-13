@@ -13,13 +13,14 @@ import ChatPage from './pages/ChatPage.jsx';
 import LocationPage from './pages/LocationPage.jsx';
 import SessionDetailPage from './pages/SessionDetailPage.jsx';
 import MySessionPage from './pages/MySessionPage.jsx';
+import PaymentsPage from './pages/PaymentsPage.jsx';
 
 function App() {
   return (
     <AuthProvider>
       <div className="min-h-screen bg-gray-50">
         <NavBar />
-        <main className="pt-16">
+        <main className="bg-custom-cream">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -28,6 +29,7 @@ function App() {
             <Route path="/sessions" element={<SessionsPage />} />
             <Route path="/my-sessions" element={<MySessionPage />} />
             <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/payments" element={<PaymentsPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/sessions/:id" element={<SessionDetailPage />} />

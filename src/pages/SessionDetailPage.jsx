@@ -21,7 +21,6 @@ const dummySessions = [
 const SessionDetailPage = () => {
   const { id } = useParams();
   const [session, setSession] = useState(null);
-console.log("session id:",id);
 
   useEffect(() => {
     const found = dummySessions.find((s) => s.id === id);
@@ -30,7 +29,7 @@ console.log("session id:",id);
 
   if (!session) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-10 text-center text-gray-600">
+      <div className="h-[100vh] max-w-4xl mx-auto px-4 py-10 text-center text-gray-600">
         <p>Session not found.</p>
         <Link to="/sessions" className="text-primary-600 hover:underline">
           Go back to sessions
@@ -76,9 +75,12 @@ console.log("session id:",id);
 
           <p className="text-gray-800 leading-relaxed mb-6">{session.description}</p>
 
-          <button className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition">
+          <div className="flex justify-center">
+            <Link className="bg-custom-dark hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition"
+          to="/payment">
             Book This Session
-          </button>
+          </Link>
+          </div>
         </div>
       </div>
     </div>

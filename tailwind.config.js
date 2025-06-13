@@ -35,7 +35,6 @@ export default {
           cream: "#FCEEE5",
           gray: "#99928D",
           dark: "#353535",
-
           brown: "#AD8654",
           coral: "#FE5D55",
         },

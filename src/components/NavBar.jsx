@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext.jsx"
 import {
@@ -8,9 +8,12 @@ import logo from "../../public/logo/logo.png";
 
 
 const NavBar = () => {
-  const { user, logout } = useAuth()
-  const location = useLocation()
-  const navigate = useNavigate()
+  const { user, logout } = useAuth();
+  // console.log("user",user);
+  
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dropdownRef = useRef(null);
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const navItems = [
@@ -22,7 +25,7 @@ const NavBar = () => {
   const userMenuItems = [
     { path: "/profile", label: "Profile" },
     { path: "/my-sessions", label: "My Sessions" },
-    { path: "/payments", label: "Payments" },
+    // { path: "/payments", label: "Payments" },
     { path: "/history", label: "History" }
   ]
 
@@ -30,6 +33,30 @@ const NavBar = () => {
     logout()
     navigate("/")
   }
+  const handleLogin = () => {
+    // logout()
+    navigate("/login")
+    setDropdownOpen(false)
+  }
+
+
+   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   return (
     <nav className="bg-[#00c2a8] text-white px-6 py-3 shadow flex justify-around items-center relative z-50">
@@ -57,9 +84,9 @@ const NavBar = () => {
       </div>
 
       {/* Right: User dropdown */}
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <button
-          onClick={() => setDropdownOpen(!dropdownOpen)}
+          onClick={() => setDropdownOpen((prev) => !prev)}
           className="focus:outline-none"
         >
           <User className="w-6 h-6 text-white" />
@@ -77,12 +104,17 @@ const NavBar = () => {
                 {item.label}
               </Link>
             ))}
-            <button
+            {user?<button
               onClick={handleLogout}
               className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
             >
               Logout
-            </button>
+            </button>:<button
+              onClick={handleLogin}
+              className="w-full text-center border-t px-4 py-1 text-md text-primary hover:bg-gray-100"
+            >
+              Login
+            </button>}
           </div>
         )}
       </div>

@@ -6,32 +6,32 @@ const PaymentPage = () => {
   const [selectedPlan, setSelectedPlan] = useState('monthly');
   const [paymentMethod, setPaymentMethod] = useState('card');
 
-  const plans = [
-    {
-      id: 'single',
-      name: 'Single Session',
-      price: 25,
-      description: 'Pay as you go',
-      features: ['Access to all sessions', 'Cancel anytime', '24h booking window']
-    },
-    {
-      id: 'monthly',
-      name: 'Monthly Unlimited',
-      price: 89,
-      originalPrice: 120,
-      description: 'Best value for regular users',
-      features: ['Unlimited sessions', 'Priority booking', 'Free cancellation', 'Trainer chat support'],
-      popular: true
-    },
-    {
-      id: 'yearly',
-      name: 'Annual Membership',
-      price: 899,
-      originalPrice: 1200,
-      description: 'Maximum savings',
-      features: ['Unlimited sessions', 'Priority booking', 'Free cancellation', 'Personal trainer sessions', 'Nutrition consultation']
-    }
-  ];
+  // const plans = [
+  //   {
+  //     id: 'single',
+  //     name: 'Single Session',
+  //     price: 25,
+  //     description: 'Pay as you go',
+  //     features: ['Access to all sessions', 'Cancel anytime', '24h booking window']
+  //   },
+  //   {
+  //     id: 'monthly',
+  //     name: 'Monthly Unlimited',
+  //     price: 89,
+  //     originalPrice: 120,
+  //     description: 'Best value for regular users',
+  //     features: ['Unlimited sessions', 'Priority booking', 'Free cancellation', 'Trainer chat support'],
+  //     popular: true
+  //   },
+  //   {
+  //     id: 'yearly',
+  //     name: 'Annual Membership',
+  //     price: 899,
+  //     originalPrice: 1200,
+  //     description: 'Maximum savings',
+  //     features: ['Unlimited sessions', 'Priority booking', 'Free cancellation', 'Personal trainer sessions', 'Nutrition consultation']
+  //   }
+  // ];
 
   const paymentHistory = [
     {
@@ -83,7 +83,7 @@ const PaymentPage = () => {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl border mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Payments & Billing</h1>
@@ -119,9 +119,9 @@ const PaymentPage = () => {
 
       {/* Make Payment Tab */}
       {activeTab === 'pay' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="gap-8">
           {/* Plans */}
-          <div>
+          {/* <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Choose Your Plan</h2>
             <div className="space-y-4">
               {plans.map(plan => (
@@ -171,7 +171,7 @@ const PaymentPage = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Payment Form */}
           <div>
@@ -269,14 +269,19 @@ const PaymentPage = () => {
               {/* Total and Pay Button */}
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-medium text-gray-900">Total</span>
+                  <span className="text-lg font-medium text-gray-900">Total:</span>
                   <span className="text-2xl font-bold text-primary-600">
-                    ${plans.find(p => p.id === selectedPlan)?.price}
+                    {/* ${plans.find(p => p.id === selectedPlan)?.price} */}AED 56
                   </span>
                 </div>
-                <button className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+               <div className="flex gap-4">
+                 <button className="w-full border border-custom-dark hover:bg-primary-700 py-3 px-4 rounded-lg font-medium transition-colors">
+                  Cancel
+                </button>
+                <button className="w-full bg-custom-dark hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
                   Complete Payment
                 </button>
+               </div>
               </div>
             </div>
           </div>
