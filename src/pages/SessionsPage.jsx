@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Clock, Users, Star, MapPin, Filter, Search, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const SessionsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -283,12 +284,15 @@ const SessionsPage = () => {
               </div>
 
               {/* Book Button */}
-              <button
-                className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
+              <div className='flex justify-center'>
+                <Link
+                 to={`/sessions/${session.id}`} 
+                className="text-center w-full bg-custom-dark hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
                 disabled={session.spots === 0}
               >
                 {session.spots === 0 ? 'Fully Booked' : 'Book Session'}
-              </button>
+              </Link>
+              </div>
             </div>
           </div>
         ))}

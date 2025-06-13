@@ -202,10 +202,11 @@ const HomePage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="cursor-pointer grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredSessions.map((session) => (
-              <div
+              <Link
                 key={session.id}
+                to={`/sessions/${session.id}`} 
                 className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 <div className="relative h-48">
@@ -243,15 +244,12 @@ const HomePage = () => {
                     </div>
                   </div>
 
-                  <Link
-                    to="/sessions"
-                    className="w-full bg-custom-dark hover:bg-primary-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
-                  >
+                  <div className="w-full bg-custom-dark hover:bg-primary-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
                     <span>Book Now</span>
                     <ArrowRight className="h-4 w-4" />
-                  </Link>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
