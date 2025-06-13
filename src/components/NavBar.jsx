@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
-import { 
-  Dumbbell, 
-  Menu, 
-  X, 
-  Home, 
-  Calendar, 
-  User, 
-  History, 
-  MessageCircle, 
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
+import {
+  Dumbbell,
+  Menu,
+  X,
+  Home,
+  Calendar,
+  User,
+  History,
+  MessageCircle,
   MapPin,
   CreditCard,
-  LogOut
-} from 'lucide-react';
+  LogOut,
+} from "lucide-react";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,19 +23,21 @@ const NavBar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   const navItems = [
-    { path: '/', label: 'Home', icon: Home },
-    { path: '/sessions', label: 'Sessions', icon: Calendar },
-    { path: '/locations', label: 'Locations', icon: MapPin },
-    ...(user ? [
-      { path: '/profile', label: 'Profile', icon: User },
-      { path: '/history', label: 'History', icon: History },
-      { path: '/payment', label: 'Payment', icon: CreditCard },
-      { path: '/chat', label: 'Chat', icon: MessageCircle },
-    ] : [])
+    { path: "/", label: "Home", icon: Home },
+    { path: "/sessions", label: "Sessions", icon: Calendar },
+    { path: "/locations", label: "Locations", icon: MapPin },
+    ...(user
+      ? [
+          { path: "/profile", label: "Profile", icon: User },
+          { path: "/history", label: "History", icon: History },
+          { path: "/payment", label: "Payment", icon: CreditCard },
+          { path: "/chat", label: "Chat", icon: MessageCircle },
+        ]
+      : []),
   ];
 
   return (
@@ -60,8 +62,8 @@ const NavBar = () => {
                   to={item.path}
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     location.pathname === item.path
-                      ? 'text-primary-600 bg-primary-50'
-                      : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
+                      ? "text-primary-600 bg-primary-50"
+                      : "text-gray-700 hover:text-primary-600 hover:bg-gray-50"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -108,7 +110,11 @@ const NavBar = () => {
               onClick={() => setIsOpen(!isOpen)}
               className="text-gray-700 hover:text-primary-600 transition-colors"
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
@@ -127,8 +133,8 @@ const NavBar = () => {
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center space-x-2 w-full px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     location.pathname === item.path
-                      ? 'text-primary-600 bg-primary-50'
-                      : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
+                      ? "text-primary-600 bg-primary-50"
+                      : "text-gray-700 hover:text-primary-600 hover:bg-gray-50"
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -136,7 +142,7 @@ const NavBar = () => {
                 </Link>
               );
             })}
-            
+
             {user ? (
               <button
                 onClick={handleLogout}
