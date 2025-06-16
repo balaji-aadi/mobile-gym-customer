@@ -2,60 +2,21 @@
 import React from "react";
 import { FaStar } from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
+import { Link } from "react-router-dom";
+import { sessions } from "./dummyData";
 
-const sessions = [
-  {
-    title: "Morning HIIT Blast",
-    trainer: "Sarah Johnson",
-    time: "7:00AM",
-    location: "Central Park",
-    rating: 4.9,
-    status: "Activated",
-    image:
-      "https://images.unsplash.com/photo-1583454110551-21d1d9ab03ee?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    title: "Strength & Power",
-    trainer: "Sarah Johnson",
-    time: "6:00PM",
-    location: "Central Park",
-    rating: 4.9,
-    status: "Activated",
-    image:
-      "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    title: "Evening Cardio Burn",
-    trainer: "Sarah Johnson",
-    time: "5:00PM",
-    location: "Central Park",
-    rating: 4.8,
-    status: "Activated",
-    image:
-      "https://images.unsplash.com/photo-1599058917212-d750089bcfc0?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    title: "Core Stability",
-    trainer: "Sarah Johnson",
-    time: "9:00AM",
-    location: "Central Park",
-    rating: 4.7,
-    status: "Activated",
-    image:
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80",
-  },
-];
 
 const MySessionPage = () => {
   return (
     // <div className="bg-custom-cream min-h-screen p-6 flex justify-center">
-    <div className="  rounded-xl  p-6 w-full mx-auto mb-20 max-w-7xl">
+    <div className="  rounded-xl  p-6 w-full mx-auto max-w-7xl h-[100vh]">
       <h2 className="text-2xl font-bold mb-6 text-center">My Sessions</h2>
 
       <div className="flex flex-wrap justify-center gap-6">
         {sessions.map((session, index) => (
-          <div
+          <Link
             key={index}
+            to={`/my-session/${index}`}
             className="bg-white rounded-xl shadow-sm overflow-hidden w-full sm:w-[48%] lg:w-[30%]"
           >
             <img
@@ -85,7 +46,7 @@ const MySessionPage = () => {
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

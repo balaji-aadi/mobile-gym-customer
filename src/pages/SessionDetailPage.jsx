@@ -39,7 +39,7 @@ const SessionDetailPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
+    <div className="max-w-4xl mx-auto px-4 py-10 h-[100vh]">
       <Link to="/sessions" className="flex items-center text-sm text-gray-600 hover:text-primary-600 mb-4">
         <ArrowLeft className="h-4 w-4 mr-1" />
         Back to sessions

@@ -14,6 +14,7 @@ import LocationPage from './pages/LocationPage.jsx';
 import SessionDetailPage from './pages/SessionDetailPage.jsx';
 import MySessionPage from './pages/MySessionPage.jsx';
 import PaymentsPage from './pages/PaymentsPage.jsx';
+import MySessionDetail from './pages/MySessionDetail.jsx';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/sessions" element={<SessionsPage />} />
             <Route path="/my-sessions" element={<MySessionPage />} />
+            <Route path="/my-session/:id" element={<MySessionDetail />} />
 
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/payments" element={<PaymentsPage />} />

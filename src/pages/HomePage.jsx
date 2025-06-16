@@ -12,8 +12,13 @@ import {
   Zap,
   Target,
 } from "lucide-react";
+import { sessions } from "./dummyData";
+import { IoLocationOutline } from "react-icons/io5";
+import { FaStar } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 
 const HomePage = () => {
+  const { user, logout } = useAuth();
   const categories = [
     {
       id: 1,
@@ -104,7 +109,7 @@ const HomePage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
               <Link
                 to="/sessions"
-                className="bg-secondary-500 hover:bg-secondary-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
+                className="bg-custom-coral text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
               >
                 <span>Book Your Session</span>
                 <ArrowRight className="h-5 w-5" />
@@ -141,6 +146,57 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+{/* My Sessions */}
+     {user&& <section className="bg-custom-cream py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              My Sessions
+            </h2>
+            
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {sessions.map((session, index) => (
+                      <Link
+                        key={index}
+                        to={`/my-session/${index}`}
+                        className="bg-white rounded-xl shadow-sm overflow-hidden"
+                      >
+                        <img
+                          src={session.image}
+                          alt={session.title}
+                          className="h-48 w-full object-cover"
+                        />
+                        <div className="p-4">
+                          <div className="flex justify-between items-center mb-2">
+                            <h3 className="font-semibold">{session.title}</h3>
+                            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
+                              {session.status}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 mb-4">
+                            with {session.trainer}
+                          </p>
+                          <div className="flex justify-between text-sm text-gray-600 flex-wrap gap-2">
+                            <span>{session.time}</span>
+                            <span className="flex items-center gap-1">
+                              <IoLocationOutline className="text-lg" />
+                              {session.location}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <FaStar className="text-yellow-400" />
+                              {session.rating}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+          </div>
+        </div>
+      </section>}
+
 
       {/* Categories Section */}
       <section className="bg-custom-cream py-20">

@@ -84,7 +84,7 @@ const NavBar = () => {
       </div>
 
       {/* Right: User dropdown */}
-      <div className="relative" ref={dropdownRef}>
+      {user?<div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setDropdownOpen((prev) => !prev)}
           className="focus:outline-none"
@@ -117,7 +117,12 @@ const NavBar = () => {
             </button>}
           </div>
         )}
+      </div>:
+      <div className="flex gap-2 items-center">
+        <Link to="/login" className="hover:text-custom-coral">Login</Link>
+        <Link className="bg-white hover:bg-custom-coral hover:text-white transition-all duration-300 text-primary px-4 py-2 rounded-md" to="/register">SignUp</Link>
       </div>
+      }
     </nav>
   )
 }

@@ -289,7 +289,7 @@ const RegisterPage = () => {
             <button
               onClick={handleSubmit}
               disabled={isLoading}
-              className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white py-3 px-4 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+              className="w-full bg-primary hover:bg-primary-700 disabled:bg-primary-400 text-white py-3 px-4 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2">
