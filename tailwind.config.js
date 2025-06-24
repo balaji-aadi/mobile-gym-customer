@@ -5,8 +5,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#21C8B1",
-
+        primary: '#21C8B1',
+        // secondary: '#FE5D55',
+        third: '#99928D',
+        fourth: '#AD8654',
         secondary: {
           50: "#fff7ed",
           100: "#ffedd5",
@@ -32,11 +34,11 @@ export default {
           900: "#064e3b",
         },
         custom: {
-          cream: "#FCEEE5",
-          gray: "#99928D",
-          dark: "#353535",
-          brown: "#AD8654",
-          coral: "#FE5D55",
+          cream: '#FCEEE5',
+          gray: '#99928D',
+          dark: '#353535',
+          brown: '#AD8654',
+          coral: '#FE5D55',
         },
       },
       fontFamily: {

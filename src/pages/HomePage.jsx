@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Play,
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { sessions } from "./dummyData";
 import { IoLocationOutline } from "react-icons/io5";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaApple, FaAndroid } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 
 const HomePage = () => {
@@ -93,35 +93,157 @@ const HomePage = () => {
     },
   ];
 
+  const [location, setLocation] = useState("Select location");
+  const [locationDropdown, setLocationDropdown] = useState(false);
+  const [locLoading, setLocLoading] = useState(false);
+  const [locError, setLocError] = useState("");
+  const locationRef = useRef(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (locationRef.current && !locationRef.current.contains(event.target)) {
+        setLocationDropdown(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleUseCurrentLocation = () => {
+    setLocLoading(true);
+    setLocError("");
+
+    if (!navigator.geolocation) {
+      setLocError("Geolocation is not supported by your browser");
+      setLocLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          );
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch location data');
+          }
+
+          const data = await response.json();
+          const address = data.address || {};
+
+          let locationParts = [
+            address.city || address.town || address.village,
+            address.state,
+            address.country
+          ].filter(Boolean);
+
+          setLocation(locationParts.join(", ") || "Current Location");
+        } catch (error) {
+          setLocError("Could not determine your location");
+          console.error("Geolocation error:", error);
+        } finally {
+          setLocLoading(false);
+          setLocationDropdown(false);
+        }
+      },
+      (error) => {
+        setLocLoading(false);
+        setLocError("Please enable location permissions in your browser settings");
+        console.error("Geolocation permission error:", error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      }
+    );
+  };
+
   return (
     <div className="animate-fade-in bg-custom-cream">
       {/* Hero Section */}
-      <section className="relative  bg-primary  text-white">
-        <div className="absolute inset-0 bg-black opacity-20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-slide-up">
-              Your Fitness Journey Starts Here
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100 animate-slide-up">
-              Mobile gym sessions that come to you. Anytime, anywhere.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
-              <Link
-                to="/sessions"
-                className="bg-custom-coral text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
-              >
-                <span>Book Your Session</span>
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-              <Link
-                to="/locations"
-                className="bg-transparent border-2 border-white hover:bg-white hover:text-primary text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2"
-              >
-                <Play className="h-5 w-5" />
-                <span>Watch Demo</span>
-              </Link>
+      <section
+        className="relative text-gray-900"
+        style={{
+          backgroundImage: `url('https://www.mindbodyonline.com/explore/static/media/hero.9d2f31ee.png')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: "30rem",
+        }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black bg-opacity-40 z-0"></div>
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 flex flex-col items-center justify-center min-h-[600px]">
+          {/* Main Heading */}
+          <h1 className="text-3xl md:text-5xl font-bold mb-6 text-center animate-slide-up text-[#FCEEE5]">
+            Discover the best in fitness & wellness
+          </h1>
+          {/* Subheading */}
+          <p className="text-lg md:text-xl mb-8  max-w-2xl mx-auto text-center animate-slide-up text-[#FCEEE5]">
+            Your new favorite studios, salons, and spas are just a search away.
+          </p>
+          {/* Search Bar with Location - Side by Side */}
+          <div className="max-w-2xl w-full mx-auto mb-8 animate-slide-up flex gap-2 bg-white rounded-lg shadow-lg">
+            <div className="flex-1 relative flex items-center px-4">
+              <span className="text-gray-400 mr-2">
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </span>
+              <input
+                type="text"
+                placeholder="Search for anything"
+                className="w-full px-2 py-4 border-0 focus:outline-none text-gray-900 bg-transparent"
+              />
             </div>
+            {/* Location Dropdown */}
+            <div className="w-72 relative flex items-center px-4 border-l border-gray-200" ref={locationRef}>
+              <span className="text-gray-400 mr-2">
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map-pin">
+                  <path d="M21 10c0 6-9 13-9 13S3 16 3 10a9 9 0 1 1 18 0Z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </span>
+              <div
+                className="w-full px-2 py-4 border-0 focus:outline-none text-primary-700 font-semibold bg-transparent cursor-pointer"
+                onClick={() => {
+                  setLocationDropdown(!locationDropdown);
+                }}
+              >
+                {location}
+              </div>
+
+              {locationDropdown && (
+                <div className="absolute left-0 top-full mt-2 w-full bg-white shadow-lg border z-20">
+                  <button
+                    className="w-full flex items-center gap-2 px-6 py-4 hover:bg-gray-50 text-left text-gray-700 font-medium"
+                    onClick={handleUseCurrentLocation}
+                    disabled={locLoading}
+                  >
+                    <svg width="30" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-navigation">
+                      <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                    </svg>
+                    {locLoading ? "Detecting..." : "Use Current Location"}
+                  </button>
+                  {locError && <div className="text-red-500 px-6 pb-3 text-sm">{locError}</div>}
+                </div>
+              )}
+            </div>
+            <button className="bg-primary hover:bg-primary-700 text-white px-6 flex items-center justify-center">
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+          </div>
+          {/* App CTA */}
+          <div className="flex items-center gap-2 animate-slide-up">
+            <FaApple className="text-2xl text-white" />
+            <FaAndroid className="text-2xl text-white" />
+            <span className="text-white font-semibold">Get the app today</span>
           </div>
         </div>
       </section>
