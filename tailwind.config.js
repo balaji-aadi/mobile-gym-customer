@@ -6,7 +6,7 @@ export default {
     extend: {
       colors: {
         primary: '#21C8B1',
-        // secondary: '#FE5D55',
+        second: '#FCEEE5',
         third: '#99928D',
         fourth: '#AD8654',
         secondary: {
@@ -42,7 +42,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["Mulish","Nunito", "Inter", "system-ui", "sans-serif"],
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",

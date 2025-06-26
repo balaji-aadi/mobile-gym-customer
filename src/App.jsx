@@ -1,7 +1,8 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext.jsx';
-import NavBar from './components/NavBar.jsx';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from 'react-router-dom';
+
 import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
@@ -15,33 +16,46 @@ import SessionDetailPage from './pages/SessionDetailPage.jsx';
 import MySessionPage from './pages/MySessionPage.jsx';
 import PaymentsPage from './pages/PaymentsPage.jsx';
 import MySessionDetail from './pages/MySessionDetail.jsx';
+import SubscriptionsPage from './pages/SubscriptionsPage.jsx';
+import ProtectedRoute, { PublicRoute } from './Middleware/ProtectedRoute.jsx';
+import Layout from './Layout/Layout.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
+
+const router = createBrowserRouter([
+  {
+    path: 'signup',
+    element: <PublicRoute><RegisterPage /></PublicRoute>,
+  },
+  {
+    path: 'login',
+    element: <PublicRoute><LoginPage /></PublicRoute>,
+  },
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      { path: '/', element: <HomePage /> },
+      { path: 'profile', element: <ProtectedRoute> <ProfilePage /></ProtectedRoute>  },
+      { path: 'sessions', element: <ProtectedRoute> <SessionsPage />  </ProtectedRoute>},
+      { path: 'my-sessions', element: <ProtectedRoute> <MySessionPage /> </ProtectedRoute> },
+      { path: 'my-session/:id', element: <ProtectedRoute> <MySessionDetail /> </ProtectedRoute> },
+      { path: 'payment', element: <ProtectedRoute> <PaymentPage /> </ProtectedRoute>},
+      { path: 'subscriptions', element: <ProtectedRoute> <SubscriptionsPage /> </ProtectedRoute> },
+      { path: 'payments', element: <ProtectedRoute> <PaymentsPage />  </ProtectedRoute>},
+      { path: 'history', element: <ProtectedRoute> <HistoryPage /> </ProtectedRoute>},
+      { path: 'chat', element: <ProtectedRoute> <ChatPage /></ProtectedRoute> },
+      { path: 'sessions/:id', element: <ProtectedRoute><SessionDetailPage /></ProtectedRoute> },
+      { path: 'locations', element: <ProtectedRoute><LocationPage /></ProtectedRoute> },
+    ],
+  },
+]);
 
 function App() {
-  return (
-    <AuthProvider>
-      <div className="min-h-screen bg-gray-50">
-        <NavBar />
-        <main className="bg-custom-cream">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/sessions" element={<SessionsPage />} />
-            <Route path="/my-sessions" element={<MySessionPage />} />
-            <Route path="/my-session/:id" element={<MySessionDetail />} />
-
-            <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/payments" element={<PaymentsPage />} />
-            <Route path="/history" element={<HistoryPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="/sessions/:id" element={<SessionDetailPage />} />
-            <Route path="/locations" element={<LocationPage />} />
-          </Routes>
-        </main>
-      </div>
+  return <>
+  <AuthProvider>
+    <RouterProvider router={router} />
     </AuthProvider>
-  );
+  </>;
 }
 
 export default App;
