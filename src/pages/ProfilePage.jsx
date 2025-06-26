@@ -15,10 +15,10 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useSelector } from "react-redux";
 
 const ProfilePage = () => {
-  const { user, updateProfile } = useAuth();
+  const user = useSelector((state) => state.auth.user);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -26,6 +26,9 @@ const ProfilePage = () => {
     phone: user?.phone || "",
     fitnessGoals: user?.fitnessGoals || [],
   });
+
+  console.log("user data", user);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showGoalDropdown, setShowGoalDropdown] = useState(false);
 
@@ -56,17 +59,6 @@ const ProfilePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      const success = await updateProfile(formData);
-      if (success) {
-        setIsEditing(false);
-      }
-    } catch (error) {
-      console.error("Failed to update profile", error);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleCancel = () => {

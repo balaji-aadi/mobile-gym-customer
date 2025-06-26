@@ -33,6 +33,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+        console.log("action>>payload>>>", action.payload);
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
