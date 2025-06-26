@@ -17,20 +17,20 @@ import { IoLocationOutline } from "react-icons/io5";
 import { FaStar, FaApple, FaAndroid } from "react-icons/fa";
 import HorizontalScroll from "../components/HorizontalScroll";
 import FeaturedSessionCard from "../components/FeaturedSessionCard";
-import fitness from "../Assests/fitness.jpg"
-import wellness from "../Assests/wellness.jpg"
-import liveness from "../Assests/liveness.jpg"
-import Footer from "../components/Footer";
+import fitness from "../Assests/fitness.jpg";
+import wellness from "../Assests/wellness.jpg";
+import liveness from "../Assests/liveness.jpg";
 
 const HomePage = () => {
-  const user = true
+  const user = true;
 
   const featuredSessions = [
     {
-      image: "https://images.pexels.com/photos/3184192/pexels-photo-3184192.jpeg?auto=compress&w=400",
+      image:
+        "https://images.pexels.com/photos/3184192/pexels-photo-3184192.jpeg?auto=compress&w=400",
       category: "Circuit Training",
       price: 26.25,
-      oldPrice: 35.00,
+      oldPrice: 35.0,
       title: "Total Body Workout...",
       studio: "Inspired Life Fitness",
       location: "Metzger | 7.4 mi",
@@ -40,10 +40,11 @@ const HomePage = () => {
       reviews: 1969,
     },
     {
-      image: "https://images.pexels.com/photos/3184192/pexels-photo-3184192.jpeg?auto=compress&w=400",
+      image:
+        "https://images.pexels.com/photos/3184192/pexels-photo-3184192.jpeg?auto=compress&w=400",
       category: "Circuit Training",
       price: 26.25,
-      oldPrice: 35.00,
+      oldPrice: 35.0,
       title: "Total Body Workout...",
       studio: "Inspired Life Fitness",
       location: "Metzger | 7.4 mi",
@@ -53,10 +54,11 @@ const HomePage = () => {
       reviews: 1969,
     },
     {
-      image: "https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg?auto=compress&w=400",
+      image:
+        "https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg?auto=compress&w=400",
       category: "Yoga",
-      price: 22.00,
-      oldPrice: 25.00,
+      price: 22.0,
+      oldPrice: 25.0,
       title: "In-studio 45 min. Y...",
       studio: "Twist Yoga",
       location: "Walluga | 7.5 mi",
@@ -66,10 +68,11 @@ const HomePage = () => {
       reviews: 1104,
     },
     {
-      image: "https://images.pexels.com/photos/1552108/pexels-photo-1552108.jpeg?auto=compress&w=400",
+      image:
+        "https://images.pexels.com/photos/1552108/pexels-photo-1552108.jpeg?auto=compress&w=400",
       category: "Yoga",
-      price: 24.00,
-      oldPrice: 28.00,
+      price: 24.0,
+      oldPrice: 28.0,
       title: "Sun & Meditation",
       studio: "Ether & Stone",
       location: "11.8 mi",
@@ -124,7 +127,7 @@ const HomePage = () => {
           );
 
           if (!response.ok) {
-            throw new Error('Failed to fetch location data');
+            throw new Error("Failed to fetch location data");
           }
 
           const data = await response.json();
@@ -133,7 +136,7 @@ const HomePage = () => {
           let locationParts = [
             address.city || address.town || address.village,
             address.state,
-            address.country
+            address.country,
           ].filter(Boolean);
 
           setLocation(locationParts.join(", ") || "Current Location");
@@ -147,13 +150,15 @@ const HomePage = () => {
       },
       (error) => {
         setLocLoading(false);
-        setLocError("Please enable location permissions in your browser settings");
+        setLocError(
+          "Please enable location permissions in your browser settings"
+        );
         console.error("Geolocation permission error:", error);
       },
       {
         enableHighAccuracy: true,
         timeout: 5000,
-        maximumAge: 0
+        maximumAge: 0,
       }
     );
   };
@@ -172,7 +177,6 @@ const HomePage = () => {
   ];
 
   return (
-
     <div className="animate-fade-in bg-second mb-10 pb-10">
       {/* Hero Section */}
       <section
@@ -183,7 +187,7 @@ const HomePage = () => {
           backgroundPosition: "center",
           height: "auto",
           minHeight: "30rem",
-          height:"25rem"
+          height: "25rem",
         }}
       >
         {/* Overlay */}
@@ -202,7 +206,19 @@ const HomePage = () => {
           <div className="w-full max-w-lg sm:max-w-3xl mx-auto mb-6 md:mb-8 animate-slide-up flex flex-col sm:flex-row gap-2 bg-white rounded-lg shadow-lg">
             <div className="flex-1 relative flex items-center px-4">
               <span className="text-gray-400 mr-2">
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+                <svg
+                  width="24"
+                  height="24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-search"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
               </span>
               <input
                 type="text"
@@ -211,9 +227,21 @@ const HomePage = () => {
               />
             </div>
             {/* Location Dropdown */}
-            <div className="w-full sm:w-96 relative flex items-center px-4 border-t sm:border-t-0 sm:border-l border-gray-200" ref={locationRef}>
+            <div
+              className="w-full sm:w-96 relative flex items-center px-4 border-t sm:border-t-0 sm:border-l border-gray-200"
+              ref={locationRef}
+            >
               <span className="text-gray-400 mr-2">
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map-pin">
+                <svg
+                  width="24"
+                  height="24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-map-pin"
+                >
                   <path d="M21 10c0 6-9 13-9 13S3 16 3 10a9 9 0 1 1 18 0Z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
@@ -234,24 +262,51 @@ const HomePage = () => {
                     onClick={handleUseCurrentLocation}
                     disabled={locLoading}
                   >
-                    <svg width="30" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-navigation">
+                    <svg
+                      width="30"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="lucide lucide-navigation"
+                    >
                       <polygon points="3 11 22 2 13 21 11 13 3 11" />
                     </svg>
                     {locLoading ? "Detecting..." : "Use Current Location"}
                   </button>
-                  {locError && <div className="text-red-500 px-6 pb-3 text-sm">{locError}</div>}
+                  {locError && (
+                    <div className="text-red-500 px-6 pb-3 text-sm">
+                      {locError}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
             <button className="bg-primary hover:bg-primary-700 text-white px-4 md:px-6 flex items-center justify-center min-h-[48px]">
-              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+              <svg
+                width="24"
+                height="24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-search"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
             </button>
           </div>
           {/* App CTA */}
           <div className="flex items-center gap-2 animate-slide-up">
             <FaApple className="text-xl md:text-2xl text-white" />
             <FaAndroid className="text-xl md:text-2xl text-white" />
-            <span className="text-white font-semibold text-sm md:text-base">Get the app today</span>
+            <span className="text-white font-semibold text-sm md:text-base">
+              Get the app today
+            </span>
           </div>
         </div>
       </section>
@@ -278,57 +333,62 @@ const HomePage = () => {
       </section>
 
       {/* My Sessions */}
-      {user && <section className="bg-custom-cream pb-10 md:pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-left mb-8 md:mb-12">
-            <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize">My Training Logs</h2>
-          </div>
+      {user && (
+        <section className="bg-second pb-10 md:pb-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-left mb-8 md:mb-12">
+              <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize">
+                My Training Logs
+              </h2>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {sessions.map((session, index) => (
-              <Link
-                key={index}
-                to={`/my-session/${index}`}
-                className="bg-white rounded-xl shadow-sm overflow-hidden"
-              >
-                <img
-                  src={session.image}
-                  alt={session.title}
-                  className="h-48 w-full object-cover"
-                />
-                <div className="p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold">{session.title}</h3>
-                    <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
-                      {session.status}
-                    </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {sessions.map((session, index) => (
+                <Link
+                  key={index}
+                  to={`/my-session/${index}`}
+                  className="bg-white rounded-xl shadow-sm overflow-hidden"
+                >
+                  <img
+                    src={session.image}
+                    alt={session.title}
+                    className="h-48 w-full object-cover"
+                  />
+                  <div className="p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-semibold">{session.title}</h3>
+                      <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
+                        {session.status}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500 mb-4">
+                      with {session.trainer}
+                    </p>
+                    <div className="flex justify-between text-sm text-gray-600 flex-wrap gap-2">
+                      <span>{session.time}</span>
+                      <span className="flex items-center gap-1">
+                        <IoLocationOutline className="text-lg" />
+                        {session.location}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <FaStar className="text-yellow-400" />
+                        {session.rating}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-500 mb-4">
-                    with {session.trainer}
-                  </p>
-                  <div className="flex justify-between text-sm text-gray-600 flex-wrap gap-2">
-                    <span>{session.time}</span>
-                    <span className="flex items-center gap-1">
-                      <IoLocationOutline className="text-lg" />
-                      {session.location}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <FaStar className="text-yellow-400" />
-                      {session.rating}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>}
-
+        </section>
+      )}
 
       {/* Explore OutBox Section */}
       <section className="bg-second py-8 md:py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-10">Explore OutBox</h2>
+          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-10">
+            Explore OutBox
+          </h2>
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
             {/* Fitness Card */}
             <div className="relative cursor-pointer hover:scale-105 transition-transform duration-300 flex-1 rounded-2xl overflow-hidden shadow-lg min-w-[300px] max-w-[400px]">
@@ -338,7 +398,9 @@ const HomePage = () => {
                 className="w-full h-56 object-cover"
               />
               <div className="absolute bottom-0 left-0 p-6 z-10">
-                <span className="text-white text-2xl font-bold drop-shadow-lg">Fitness</span>
+                <span className="text-white text-2xl font-bold drop-shadow-lg">
+                  Fitness
+                </span>
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
@@ -350,7 +412,9 @@ const HomePage = () => {
                 className="w-full h-56 object-cover"
               />
               <div className="absolute bottom-0 left-0 p-6 z-10">
-                <span className="text-white text-2xl font-bold drop-shadow-lg">Wellness</span>
+                <span className="text-white text-2xl font-bold drop-shadow-lg">
+                  Wellness
+                </span>
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
@@ -362,7 +426,9 @@ const HomePage = () => {
                 className="w-full h-56 object-cover"
               />
               <div className="absolute bottom-0 left-0 p-6 z-10">
-                <span className="text-white text-2xl font-bold drop-shadow-lg">Liveness</span>
+                <span className="text-white text-2xl font-bold drop-shadow-lg">
+                  Liveness
+                </span>
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
@@ -373,7 +439,9 @@ const HomePage = () => {
       {/* Top Sessions Section */}
       <section className="bg-second py-10 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize">Top fitness Sessions</h2>
+          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize">
+            Top fitness Sessions
+          </h2>
           <HorizontalScroll
             items={topCategories}
             renderItem={(cat) => (
@@ -389,8 +457,13 @@ const HomePage = () => {
       <section className="bg-second py-10 md:py-16 pl-2 md:pl-4 pr-2 md:pr-14">
         <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14">Find your new favorite classes</h2>
-            <Link to="/subscriptions" className="text-primary-600 font-semibold flex items-center gap-1 ">
+            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14">
+              Find your new favorite classes
+            </h2>
+            <Link
+              to="/subscriptions"
+              className="text-primary-600 font-semibold flex items-center gap-1 "
+            >
               Show all (21) <span>&rarr;</span>
             </Link>
           </div>
@@ -406,8 +479,13 @@ const HomePage = () => {
       <section className="bg-second py-10 md:py-16 pl-2 md:pl-4 pr-2 md:pr-14">
         <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14">Locations near you</h2>
-            <Link to="/subscriptions" className="text-primary-600 font-semibold flex items-center gap-1 ">
+            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14">
+              Locations near you
+            </h2>
+            <Link
+              to="/subscriptions"
+              className="text-primary-600 font-semibold flex items-center gap-1 "
+            >
               Show all (21) <span>&rarr;</span>
             </Link>
           </div>
@@ -423,8 +501,13 @@ const HomePage = () => {
       <section className="bg-second py-10 md:py-16 pl-2 md:pl-4 pr-2 md:pr-14">
         <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14">Top Reviewed Deals</h2>
-            <Link to="/subscriptions" className="text-primary-600 font-semibold flex items-center gap-1 ">
+            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14">
+              Top Reviewed Deals
+            </h2>
+            <Link
+              to="/subscriptions"
+              className="text-primary-600 font-semibold flex items-center gap-1 "
+            >
               Show all (21) <span>&rarr;</span>
             </Link>
           </div>
@@ -448,12 +531,15 @@ const HomePage = () => {
       >
         <div className="container mx-auto px-0 md:px-4">
           <div className=" lg:ml-0 lg:mr-auto lg:pl-8 xl:pl-[35rem] 2xl:pl-32">
-            <h6 className="mb-0 text-xs md:text-sm font-semibold">OutBox Fitness</h6>
+            <h6 className="mb-0 text-xs md:text-sm font-semibold">
+              OutBox Fitness
+            </h6>
             <h5 className="text-lg md:text-2xl font-bold mt-2 mb-2 md:mb-4">
               The best in wellness is at your fingertips
             </h5>
             <p className="mb-4 md:mb-6 text-sm md:text-base">
-              Whatever you're seeking—from fitness to beauty & beyond—you'll find it on the OutBox app. Download to start your search.
+              Whatever you're seeking—from fitness to beauty & beyond—you'll
+              find it on the OutBox app. Download to start your search.
             </p>
             <div className="w-full relative">
               <div className="flex">
@@ -500,9 +586,7 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
     </div>
-
   );
 };
 

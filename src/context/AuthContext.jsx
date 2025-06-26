@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -16,9 +16,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check for existing session
-    const token = localStorage.getItem('auth-token');
-    const userData = localStorage.getItem('user-data');
-    
+    const token = localStorage.getItem("auth-token");
+    const userData = localStorage.getItem("user-data");
+
     if (token && userData) {
       setUser(JSON.parse(userData));
     }
@@ -29,18 +29,18 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const userData = {
-        id: '1',
-        name: 'John Doe',
+        id: "1",
+        name: "John Doe",
         email: email,
-        phone: '+1234567890',
-        fitnessGoals: ['Weight Loss', 'Muscle Building']
+        phone: "+1234567890",
+        fitnessGoals: ["Weight Loss", "Muscle Building"],
       };
-      
-      localStorage.setItem('auth-token', 'dummy-token');
-      localStorage.setItem('user-data', JSON.stringify(userData));
+
+      localStorage.setItem("auth-token", "dummy-token");
+      localStorage.setItem("user-data", JSON.stringify(userData));
       setUser(userData);
       setIsLoading(false);
       return true;
@@ -54,15 +54,15 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const newUser = {
         id: Date.now().toString(),
-        ...userData
+        ...userData,
       };
-      
-      localStorage.setItem('auth-token', 'dummy-token');
-      localStorage.setItem('user-data', JSON.stringify(newUser));
+
+      localStorage.setItem("auth-token", "dummy-token");
+      localStorage.setItem("user-data", JSON.stringify(newUser));
       setUser(newUser);
       setIsLoading(false);
       return true;
@@ -73,15 +73,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('auth-token');
-    localStorage.removeItem('user-data');
+    localStorage.removeItem("auth-token");
+    localStorage.removeItem("user-data");
     setUser(null);
   };
 
   const updateProfile = async (updatedData) => {
     try {
       const updatedUser = { ...user, ...updatedData };
-      localStorage.setItem('user-data', JSON.stringify(updatedUser));
+      localStorage.setItem("user-data", JSON.stringify(updatedUser));
       setUser(updatedUser);
       return true;
     } catch (error) {
@@ -95,12 +95,8 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateProfile,
-    isLoading
+    isLoading,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -5,10 +5,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#21C8B1',
-        second: '#FCEEE5',
-        third: '#99928D',
-        fourth: '#AD8654',
+        primary: "#21C8B1",
+        second: "#FCEEE5",
+        third: "#99928D",
+        fourth: "#AD8654",
         secondary: {
           50: "#fff7ed",
           100: "#ffedd5",
@@ -34,15 +34,15 @@ export default {
           900: "#064e3b",
         },
         custom: {
-          cream: '#FCEEE5',
-          gray: '#99928D',
-          dark: '#353535',
-          brown: '#AD8654',
-          coral: '#FE5D55',
+          cream: "#FCEEE5",
+          gray: "#99928D",
+          dark: "#353535",
+          brown: "#AD8654",
+          coral: "#FE5D55",
         },
       },
       fontFamily: {
-        sans: ["Mulish","Nunito", "Inter", "system-ui", "sans-serif"],
+        sans: ["Mulish", "Nunito", "Inter", "system-ui", "sans-serif"],
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",
