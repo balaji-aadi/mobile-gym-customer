@@ -11,7 +11,6 @@ const NavBar = () => {
   const mobileMenuRef = useRef(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const user = useSelector((state) => state.auth.user);
 
   const navItems = [
@@ -58,31 +57,9 @@ const NavBar = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const navClass = isScrolled
-    ? "bg-gradient-to-r from-primary to-primary-dark shadow-lg"
-    : "bg-transparent";
-
-  const linkColor = isScrolled ? "text-white/80" : "text-gray-600";
-  const activeLinkColor = isScrolled
-    ? "bg-white/20 text-white"
-    : "bg-gray-100 text-primary";
-  const hoverLinkColor = isScrolled
-    ? "hover:text-white hover:bg-white/10"
-    : "hover:text-primary hover:bg-gray-50";
-
   return (
     <>
-      <nav
-        className={`px-4 sm:px-6 py-3 sticky top-0 z-50 transition-all duration-300 ${navClass}`}
-      >
+      <nav className="bg-primary text-white px-4 sm:px-6 py-3 shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
@@ -100,8 +77,10 @@ const NavBar = () => {
                 key={path}
                 to={path}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  location.pathname === path ? activeLinkColor : linkColor
-                } ${hoverLinkColor}`}
+                  location.pathname === path
+                    ? "bg-white/20 text-white"
+                    : "text-white/80 hover:text-white hover:bg-white/10"
+                }`}
               >
                 <Icon size={18} />
                 <span>{label}</span>
@@ -117,16 +96,8 @@ const NavBar = () => {
                   onClick={() => setDropdownOpen((prev) => !prev)}
                   className="flex items-center space-x-1 focus:outline-none"
                 >
-                  <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                      isScrolled ? "bg-white/20" : "bg-gray-200"
-                    }`}
-                  >
-                    <User
-                      className={`w-5 h-5 transition-colors ${
-                        isScrolled ? "text-white" : "text-gray-600"
-                      }`}
-                    />
+                  <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                    <User className="w-5 h-5 text-white" />
                   </div>
                 </button>
 
@@ -159,21 +130,13 @@ const NavBar = () => {
               <div className="flex gap-3 items-center">
                 <Link
                   to="/login"
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    isScrolled
-                      ? "text-white hover:bg-white/10"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                  className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className={`transition-all duration-300 px-4 py-2 rounded-lg text-sm font-medium shadow-sm ${
-                    isScrolled
-                      ? "bg-white hover:bg-gray-200 text-primary"
-                      : "bg-primary hover:bg-primary-dark text-white"
-                  }`}
+                  className="bg-white hover:bg-primary-light transition-all duration-300 text-primary px-4 py-2 rounded-lg text-sm font-medium shadow-sm"
                 >
                   Sign Up
                 </Link>
@@ -189,11 +152,7 @@ const NavBar = () => {
             {mobileMenuOpen ? (
               <X className="w-6 h-6" />
             ) : (
-              <Menu
-                className={`w-6 h-6 transition-colors ${
-                  isScrolled ? "text-white" : "text-gray-800"
-                }`}
-              />
+              <Menu className="w-6 h-6" />
             )}
           </button>
         </div>
