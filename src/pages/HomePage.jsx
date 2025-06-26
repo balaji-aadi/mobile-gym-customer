@@ -8,9 +8,10 @@ import FeaturedSessionCard from "../components/FeaturedSessionCard";
 import fitness from "../Assests/fitness.jpg";
 import wellness from "../Assests/wellness.jpg";
 import liveness from "../Assests/liveness.jpg";
+import { useSelector } from "react-redux";
 
 const HomePage = () => {
-  const user = true;
+  const user = useSelector((state) => state.auth.user);
 
   const featuredSessions = [
     {
@@ -77,6 +78,26 @@ const HomePage = () => {
   const [locError, setLocError] = useState("");
   const locationRef = useRef(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [category, setCategory] = useState([
+    {
+      id: 1,
+      title: "Fitness",
+      image: {fitness},
+      alt: "Fitness"
+    },
+    {
+      id: 2,
+      title: "Wellness",
+      image: {wellness},
+      alt: "Wellness"
+    },
+    {
+      id: 3,
+      title: "Liveness",
+      image: {liveness},
+      alt: "Liveness"
+    }
+  ]);
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -165,7 +186,7 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="animate-fade-in bg-second mb-10 pb-10">
+    <div className="animate-fade-in bg-second pb-10">
       {/* Hero Section */}
       <section
         className="relative text-gray-900"
@@ -322,9 +343,9 @@ const HomePage = () => {
       {/* My Sessions */}
       {user && (
         <section className="bg-second pb-10 md:pb-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-3">
             <div className="text-left mb-8 md:mb-12">
-              <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize">
+              <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize text-fifth">
                 My Training Logs
               </h2>
             </div>
@@ -373,60 +394,36 @@ const HomePage = () => {
       {/* Explore OutBox Section */}
       <section className="bg-second py-8 md:py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-10">
+          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-10 text-fifth">
             Explore OutBox
           </h2>
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-            {/* Fitness Card */}
-            <div className="relative cursor-pointer hover:scale-105 transition-transform duration-300 flex-1 rounded-2xl overflow-hidden shadow-lg min-w-[300px] max-w-[400px]">
-              <img
-                src={fitness}
-                alt="Fitness"
-                className="w-full h-56 object-cover"
-              />
-              <div className="absolute bottom-0 left-0 p-6 z-10">
-                <span className="text-white text-2xl font-bold drop-shadow-lg">
-                  Fitness
-                </span>
+            {category.map((cat) => (
+              <div
+                key={cat.id}
+                className="relative cursor-pointer hover:scale-105 transition-transform duration-300 flex-1 rounded-2xl overflow-hidden shadow-lg min-w-[300px] max-w-[400px]"
+              >
+                <img
+                  src={cat.image}
+                  alt={cat.alt}
+                  className="w-full h-56 object-cover"
+                />
+                <div className="absolute bottom-0 left-0 p-6 z-10">
+                  <span className="text-white text-2xl font-bold drop-shadow-lg">
+                    {cat.title}
+                  </span>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            </div>
-            {/* Wellness Card */}
-            <div className="relative hover:scale-105 transition-transform duration-300 flex-1 cursor-pointer rounded-2xl overflow-hidden shadow-lg min-w-[300px] max-w-[400px]">
-              <img
-                src={wellness}
-                alt="Wellness"
-                className="w-full h-56 object-cover"
-              />
-              <div className="absolute bottom-0 left-0 p-6 z-10">
-                <span className="text-white text-2xl font-bold drop-shadow-lg">
-                  Wellness
-                </span>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            </div>
-            {/* Liveness Card */}
-            <div className="relative flex-1 hover:scale-105 transition-transform duration-300 cursor-pointer rounded-2xl overflow-hidden shadow-lg min-w-[300px] max-w-[400px]">
-              <img
-                src={liveness}
-                alt="Liveness"
-                className="w-full h-56 object-cover"
-              />
-              <div className="absolute bottom-0 left-0 p-6 z-10">
-                <span className="text-white text-2xl font-bold drop-shadow-lg">
-                  Liveness
-                </span>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Top Sessions Section */}
       <section className="bg-second py-10 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-3">
+          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize text-fifth">
             Top fitness Sessions
           </h2>
           <HorizontalScroll
@@ -442,9 +439,9 @@ const HomePage = () => {
 
       {/* Featured Sessions */}
       <section className="bg-second py-10 md:py-16 pl-2 md:pl-4 pr-2 md:pr-14">
-        <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8 xl:max-w-7xl">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14">
+            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14 text-fifth">
               Find your new favorite classes
             </h2>
             <Link
@@ -464,9 +461,9 @@ const HomePage = () => {
 
       {/* Location near you Sessions */}
       <section className="bg-second py-10 md:py-16 pl-2 md:pl-4 pr-2 md:pr-14">
-        <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8 xl:max-w-7xl">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14">
+            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14 text-fifth">
               Locations near you
             </h2>
             <Link
@@ -486,9 +483,9 @@ const HomePage = () => {
 
       {/* Top Reviewed Deals Sessions */}
       <section className="bg-second py-10 md:py-16 pl-2 md:pl-4 pr-2 md:pr-14">
-        <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8 xl:max-w-7xl">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14">
+            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14 text-fifth">
               Top Reviewed Deals
             </h2>
             <Link
@@ -508,7 +505,7 @@ const HomePage = () => {
 
       {/* CTA Section */}
       <section
-        className="py-10 md:py-16 bg-second relative rounded-xl mx-auto w-[98%] md:w-[90%] max-w-[1200px] px-2 md:px-4 xl:px-32"
+        className="py-10 md:py-16 bg-second relative rounded-xl mx-auto w-[98%] md:w-[90%] max-w-[1200px] px-2 md:px-4 xl:px-32 2xl:pl-[35rem]"
         data-name="Section.outBoxApp"
         style={{
           backgroundImage: `url('https://www.mindbodyonline.com/explore/static/media/mb-app-background-desktop.165fd981.png')`,
@@ -518,13 +515,13 @@ const HomePage = () => {
       >
         <div className="container mx-auto px-0 md:px-4">
           <div className=" lg:ml-0 lg:mr-auto lg:pl-8 xl:pl-[35rem] 2xl:pl-32">
-            <h6 className="mb-0 text-xs md:text-sm font-semibold">
+            <h6 className="mb-0 text-xs md:text-sm font-semibold text-fifth">
               OutBox Fitness
             </h6>
-            <h5 className="text-lg md:text-2xl font-bold mt-2 mb-2 md:mb-4">
+            <h5 className="text-lg md:text-2xl font-bold mt-2 mb-2 md:mb-4 text-fifth">
               The best in wellness is at your fingertips
             </h5>
-            <p className="mb-4 md:mb-6 text-sm md:text-base">
+            <p className="mb-4 md:mb-6 text-sm md:text-base text-fifth">
               Whatever you're seeking—from fitness to beauty & beyond—you'll
               find it on the OutBox app. Download to start your search.
             </p>
@@ -532,7 +529,7 @@ const HomePage = () => {
               <div className="flex">
                 <div className="w-auto">
                   <button
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 md:py-3 px-4 md:px-6 rounded flex items-center text-sm md:text-base"
+                    className="bg-[#353535] text-white uppercase font-semibold py-3 px-6 rounded-md flex items-center justify-center text-sm tracking-wide"
                     type="button"
                     onClick={toggleDropdown}
                   >
@@ -548,6 +545,7 @@ const HomePage = () => {
                       </svg>
                     </span>
                   </button>
+
 
                   {showDropdown && (
                     <div className="absolute mt-1 w-40 md:w-48 bg-white rounded-md shadow-lg z-10">

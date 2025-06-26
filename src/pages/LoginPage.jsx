@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import { AlertCircle, Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import gola from "../../public/gola.jpg";
@@ -42,6 +42,12 @@ const LoginPage = () => {
       handleLoading(true)
       try {
         const res = await dispatch(loginUser(values)).unwrap();
+        if (values.rememberMe) {
+          localStorage.setItem("rememberedEmailOrPhone", values.emailOrPhone);
+          localStorage.setItem("rememberedPassword", values.password);
+        } else {
+          localStorage.removeItem("rememberedEmailOrPhone");
+        }
         navigate("/");
         localStorage.setItem("token", res?.token);
         localStorage.setItem("userId", res?.user?._id);
@@ -53,6 +59,19 @@ const LoginPage = () => {
       }
     },
   });
+
+  useEffect(() => {
+    const rememberedEmailOrPhone = localStorage.getItem("rememberedEmailOrPhone");
+    const rememberedPassword = localStorage.getItem("rememberedPassword");
+    if (rememberedEmailOrPhone) {
+      formik.setValues({
+        ...formik.values,
+        emailOrPhone: rememberedEmailOrPhone,
+        password: rememberedPassword,
+        rememberMe: true,
+      });
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center py-4 sm:py-8 px-4 sm:px-6 lg:px-8 2xl:px-12">

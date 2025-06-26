@@ -9,6 +9,7 @@ export default {
         second: "#FCEEE5",
         third: "#99928D",
         fourth: "#AD8654",
+        fifth: "#353535",
         secondary: {
           50: "#fff7ed",
           100: "#ffedd5",

@@ -15,7 +15,7 @@ const NavBar = () => {
 
   const navItems = [
     { path: "/", label: "Home", icon: Home },
-    { path: "/sessions", label: "Sessions", icon: Calendar },
+    { path: "/subscriptions", label: "Classes", icon: Calendar },
     { path: "/locations", label: "Location", icon: MapPin },
   ];
 
