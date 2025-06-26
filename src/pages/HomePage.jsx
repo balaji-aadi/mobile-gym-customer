@@ -1,17 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import  { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  Play,
-  Users,
-  Clock,
-  MapPin,
-  Star,
-  ArrowRight,
-  Dumbbell,
-  Heart,
-  Zap,
-  Target,
-} from "lucide-react";
 import { sessions } from "./dummyData";
 import { IoLocationOutline } from "react-icons/io5";
 import { FaStar, FaApple, FaAndroid } from "react-icons/fa";
@@ -185,7 +173,6 @@ const HomePage = () => {
           backgroundImage: `url('https://www.mindbodyonline.com/explore/static/media/hero.9d2f31ee.png')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          height: "auto",
           minHeight: "30rem",
           height: "25rem",
         }}

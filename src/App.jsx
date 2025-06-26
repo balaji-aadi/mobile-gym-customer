@@ -19,7 +19,8 @@ import MySessionDetail from './pages/MySessionDetail.jsx';
 import SubscriptionsPage from './pages/SubscriptionsPage.jsx';
 import ProtectedRoute, { PublicRoute } from './Middleware/ProtectedRoute.jsx';
 import Layout from './Layout/Layout.jsx';
-import { AuthProvider } from './context/AuthContext.jsx';
+import { Toaster } from 'react-hot-toast';
+import { LoaderProvider } from './loader/LoaderContext';
 
 const router = createBrowserRouter([
   {
@@ -35,14 +36,14 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: '/', element: <HomePage /> },
-      { path: 'profile', element: <ProtectedRoute> <ProfilePage /></ProtectedRoute>  },
-      { path: 'sessions', element: <ProtectedRoute> <SessionsPage />  </ProtectedRoute>},
+      { path: 'profile', element: <ProtectedRoute> <ProfilePage /></ProtectedRoute> },
+      { path: 'sessions', element: <ProtectedRoute> <SessionsPage />  </ProtectedRoute> },
       { path: 'my-sessions', element: <ProtectedRoute> <MySessionPage /> </ProtectedRoute> },
       { path: 'my-session/:id', element: <ProtectedRoute> <MySessionDetail /> </ProtectedRoute> },
-      { path: 'payment', element: <ProtectedRoute> <PaymentPage /> </ProtectedRoute>},
+      { path: 'payment', element: <ProtectedRoute> <PaymentPage /> </ProtectedRoute> },
       { path: 'subscriptions', element: <ProtectedRoute> <SubscriptionsPage /> </ProtectedRoute> },
-      { path: 'payments', element: <ProtectedRoute> <PaymentsPage />  </ProtectedRoute>},
-      { path: 'history', element: <ProtectedRoute> <HistoryPage /> </ProtectedRoute>},
+      { path: 'payments', element: <ProtectedRoute> <PaymentsPage />  </ProtectedRoute> },
+      { path: 'history', element: <ProtectedRoute> <HistoryPage /> </ProtectedRoute> },
       { path: 'chat', element: <ProtectedRoute> <ChatPage /></ProtectedRoute> },
       { path: 'sessions/:id', element: <ProtectedRoute><SessionDetailPage /></ProtectedRoute> },
       { path: 'locations', element: <ProtectedRoute><LocationPage /></ProtectedRoute> },
@@ -52,9 +53,16 @@ const router = createBrowserRouter([
 
 function App() {
   return <>
-  <AuthProvider>
-    <RouterProvider router={router} />
-    </AuthProvider>
+    <Toaster
+      containerStyle={{
+        top: "4rem",
+        zIndex: "9999999999999",
+      }}
+    />
+
+    <LoaderProvider>
+      <RouterProvider router={router} />
+    </LoaderProvider>
   </>;
 }
 
