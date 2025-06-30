@@ -4,10 +4,7 @@ import { sessions } from "./dummyData";
 import { IoLocationOutline } from "react-icons/io5";
 import { FaStar, FaApple, FaAndroid } from "react-icons/fa";
 import HorizontalScroll from "../components/HorizontalScroll";
-import FeaturedSessionCard from "../components/FeaturedSessionCard";
-import fitness from "../Assests/fitness.jpg";
-import wellness from "../Assests/wellness.jpg";
-import liveness from "../Assests/liveness.jpg";
+import SubscriptionCards from "../components/SubscriptionCards";
 import { useSelector } from "react-redux";
 import { CategoryApi } from "../Api/Category.api";
 import { useLoading } from "../loader/LoaderContext";
@@ -82,6 +79,7 @@ const HomePage = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [category, setCategory] = useState([]);
   const [sessionData, setSessions] = useState([]);
+  const [subscription, setSubscription] = useState([])
 
   const { handleLoading } = useLoading();
 
@@ -89,9 +87,19 @@ const HomePage = () => {
     handleLoading(true);
     try {
       const res = await CategoryApi.Allcategory();
-      console.log(res?.data?.data);
-
       setCategory(res?.data?.data);
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      handleLoading(false);
+    }
+  };
+
+  const getAllSubscription = async () => {
+    handleLoading(true);
+    try {
+      const res = await CategoryApi.getAllSubscription();
+      setSubscription(res?.data?.data);
     } catch (error) {
       console.log("Error", error);
     } finally {
@@ -103,8 +111,6 @@ const HomePage = () => {
     handleLoading(true);
     try {
       const res = await CategoryApi.Allsession();
-      console.log(res?.data?.data);
-
       setSessions(res?.data?.data);
     } catch (error) {
       console.log("Error", error);
@@ -116,6 +122,7 @@ const HomePage = () => {
   useEffect(() => {
     getAllCategory();
     getAllSessions();
+    getAllSubscription()
   }, []);
 
   const toggleDropdown = () => {
@@ -190,19 +197,6 @@ const HomePage = () => {
       }
     );
   };
-
-  // const topCategories = [
-  //   "Pilates",
-  //   "Barre",
-  //   "Dance",
-  //   "Circuit Training",
-  //   "Yoga",
-  //   "HIIT",
-  //   "Strength",
-  //   "Cardio",
-  //   "Boxing",
-  //   "Meditation",
-  // ];
 
   return (
     <div className="animate-fade-in bg-second pb-10">
@@ -339,8 +333,8 @@ const HomePage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="bg-second py-10 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
             {[
               { number: "1000+", label: "Happy Members" },
@@ -361,8 +355,8 @@ const HomePage = () => {
 
       {/* My Sessions */}
       {user && (
-        <section className="bg-second pb-10 md:pb-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-3">
+        <section className="bg-second pb-10 md:pb-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
             <div className="text-left mb-8 md:mb-12">
               <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize text-fifth">
                 My Training Logs
@@ -411,15 +405,16 @@ const HomePage = () => {
       )}
 
       {/* Explore OutBox Section */}
-      <section className="bg-second py-8 md:py-12">
-        <div className="max-w-7xl mx-auto px-4">
+      {category?.length > 0 && <section className="bg-second py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-10 text-fifth">
             Explore OutBox
           </h2>
-          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 flex-wrap">
             {category.map((cat) => (
-              <div
+              <Link
                 key={cat._id}
+                to={`/subscriptions/${cat._id}?name=cat`}
                 className="relative cursor-pointer hover:scale-105 transition-transform duration-300 flex-1 rounded-2xl overflow-hidden shadow-lg min-w-[300px] max-w-[400px]"
               >
                 <img
@@ -433,22 +428,23 @@ const HomePage = () => {
                   </span>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* Top Sessions Section */}
-      <section className="bg-second py-10 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-3">
-          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize text-fifth text-center">
+      {sessionData?.length > 0 && <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize text-fifth text-start">
             Top fitness Sessions
           </h2>
           <HorizontalScroll
             items={sessionData}
             renderItem={(cat) => (
-              <div
+              <Link
+                to={`subscriptions/${cat?._id}?name=session`}
                 className="w-40 h-40 md:w-56 md:h-56 hover:opacity-90 cursor-pointer flex items-center justify-center rounded-full bg-center bg-cover text-lg md:text-2xl font-semibold text-white shadow-md"
                 style={{
                   backgroundImage: `url(${cat.image})`,
@@ -457,81 +453,81 @@ const HomePage = () => {
                 <div className="bg-black bg-opacity-50 rounded-full px-4 py-2 text-center">
                   {cat.sessionName}
                 </div>
-              </div>
+              </Link>
             )}
           />
         </div>
-      </section>
+      </section>}
 
       {/* Featured Sessions */}
-      <section className="bg-second py-10 md:py-16 pl-2 md:pl-4 pr-2 md:pr-14">
-        <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8 xl:max-w-7xl">
+      {subscription?.length > 0 && <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14 text-fifth">
+            <h2 className="text-xl md:text-3xl font-bold capitalize text-fifth">
               Find your new favorite classes
             </h2>
             <Link
-              to="/subscriptions"
-              className="text-primary-600 font-semibold flex items-center gap-1 "
+              to={`/subscriptions/${1}`}
+              className="text-primary-600 font-semibold flex items-center gap-1"
             >
-              Show all (21) <span>&rarr;</span>
+              Show all ({subscription?.length}) <span>&rarr;</span>
             </Link>
           </div>
           <HorizontalScroll
-            items={featuredSessions}
-            renderItem={(session) => <FeaturedSessionCard {...session} />}
+            items={subscription}
+            renderItem={(session) => <SubscriptionCards {...session} />}
             itemClass="mr-4 md:mr-6"
           />
         </div>
-      </section>
+      </section>}
 
       {/* Location near you Sessions */}
-      <section className="bg-second py-10 md:py-16 pl-2 md:pl-4 pr-2 md:pr-14">
-        <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8 xl:max-w-7xl">
+      {/* <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14 text-fifth">
+            <h2 className="text-xl md:text-3xl font-bold capitalize text-fifth">
               Locations near you
             </h2>
             <Link
               to="/subscriptions"
-              className="text-primary-600 font-semibold flex items-center gap-1 "
+              className="text-primary-600 font-semibold flex items-center gap-1"
             >
               Show all (21) <span>&rarr;</span>
             </Link>
           </div>
           <HorizontalScroll
             items={featuredSessions}
-            renderItem={(session) => <FeaturedSessionCard {...session} />}
+            renderItem={(session) => <SubscriptionCards {...session} />}
             itemClass="mr-4 md:mr-6"
           />
         </div>
-      </section>
+      </section> */}
 
       {/* Top Reviewed Deals Sessions */}
-      <section className="bg-second py-10 md:py-16 pl-2 md:pl-4 pr-2 md:pr-14">
-        <div className="mx-auto px-2 md:px-4 sm:px-6 lg:px-8 xl:max-w-7xl">
+      {/* <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize pl-0 md:pl-14 text-fifth">
+            <h2 className="text-xl md:text-3xl font-bold capitalize text-fifth">
               Top Reviewed Deals
             </h2>
             <Link
               to="/subscriptions"
-              className="text-primary-600 font-semibold flex items-center gap-1 "
+              className="text-primary-600 font-semibold flex items-center gap-1"
             >
               Show all (21) <span>&rarr;</span>
             </Link>
           </div>
           <HorizontalScroll
             items={featuredSessions}
-            renderItem={(session) => <FeaturedSessionCard {...session} />}
+            renderItem={(session) => <SubscriptionCards {...session} />}
             itemClass="mr-4 md:mr-6"
           />
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section
-        className="py-10 md:py-16 bg-second relative rounded-xl mx-auto w-[98%] md:w-[90%] max-w-[1200px] px-2 md:px-4 xl:px-32 2xl:pl-[35rem]"
+        className="py-10 md:py-16 bg-second relative rounded-xl mx-auto w-[calc(100%-1rem)] md:w-[calc(100%-5rem)] max-w-[1200px] px-4 sm:px-6 lg:px-8 xl:px-32 2xl:pl-[35rem]"
         data-name="Section.outBoxApp"
         style={{
           backgroundImage: `url('https://www.mindbodyonline.com/explore/static/media/mb-app-background-desktop.165fd981.png')`,
@@ -539,8 +535,8 @@ const HomePage = () => {
           backgroundPosition: "center",
         }}
       >
-        <div className="container mx-auto px-0 md:px-4">
-          <div className=" lg:ml-0 lg:mr-auto lg:pl-8 xl:pl-[35rem] 2xl:pl-32">
+        <div className="container mx-auto">
+          <div className="lg:ml-0 lg:mr-auto lg:pl-8 xl:pl-[35rem] 2xl:pl-32">
             <h6 className="mb-0 text-xs md:text-sm font-semibold text-fifth">
               OutBox Fitness
             </h6>

@@ -20,9 +20,9 @@ const NavBar = () => {
   const dispatch = useDispatch();
 
   const navItems = [
-    { path: "/", label: "Home", icon: Home },
-    { path: "/subscriptions", label: "Classes", icon: Calendar },
-    { path: "/locations", label: "Location", icon: MapPin },
+    // { path: "/", label: "Home", icon: Home },
+    { path: "/subscriptions", label: "Deals", icon: Calendar },
+    // { path: "/locations", label: "Location", icon: MapPin },
   ];
 
   const userMenuItems = [
@@ -33,7 +33,7 @@ const NavBar = () => {
 
   const handleLogout = async () => {
     try {
-      (await AuthApi.logout) && AuthApi.logout(); // Only call if exists
+      (await AuthApi.logout) && AuthApi.logout();
       dispatch(logout());
       toast.success("Logout Successfully");
       navigate("/login");
@@ -45,11 +45,6 @@ const NavBar = () => {
     setIsModalOpen(false);
   };
 
-  const handleLogin = () => {
-    navigate("/login");
-    setDropdownOpen(false);
-    setMobileMenuOpen(false);
-  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -80,97 +75,96 @@ const NavBar = () => {
             <img
               src={logo}
               alt="Logo"
-              className="h-10 sm:h-12 object-contain transition-transform hover:scale-105"
+              className="h-12 sm:h-12 object-contain transition-transform hover:scale-105"
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-6 lg:space-x-8">
+          <div className="hidden md:flex space-x-6 lg:space-x-8 ">
             {navItems.map(({ path, label, icon: Icon }) => (
               <Link
                 key={path}
                 to={path}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  location.pathname === path
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === path
                     ? "bg-white/20 text-white"
                     : "text-white/80 hover:text-white hover:bg-white/10"
-                }`}
+                  }`}
               >
-                <Icon size={18} />
+                {/* <Icon size={18} /> */}
                 <span>{label}</span>
                 {/* <span>{path}</span> */}
               </Link>
             ))}
             {/* {JSON.stringify(navItems)} */}
-          </div>
-
-          {/* User actions - Desktop */}
-          <div className="hidden md:flex items-center space-x-4">
-            {user ? (
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen((prev) => !prev)}
-                  className="flex items-center space-x-1 focus:outline-none"
-                >
-                  <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
-                    {user?.image ? (
-                      <img
-                        src={user.image}
-                        alt={user.name}
-                        className="w-full h-full object-cover rounded-full"
-                      />
-                    ) : user?.name ? (
-                      <span className="text-white text-lg font-bold">
-                        {user.name.charAt(0).toUpperCase()}
-                      </span>
-                    ) : (
-                      <User className="w-5 h-5 text-white" />
-                    )}
-                  </div>
-                </button>
-
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-lg shadow-xl py-2 z-50 border border-gray-100">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-medium">Hello, {user.name}</p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
+            {/* User actions - Desktop */}
+            <div className="hidden md:flex items-center space-x-4">
+              {user ? (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setDropdownOpen((prev) => !prev)}
+                    className="flex items-center space-x-1 focus:outline-none"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+                      {user?.image ? (
+                        <img
+                          src={user.image}
+                          alt={user.name}
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      ) : user?.name ? (
+                        <span className="text-white text-lg font-bold">
+                          {user.name.charAt(0).toUpperCase()}
+                        </span>
+                      ) : (
+                        <User className="w-5 h-5 text-white" />
+                      )}
                     </div>
-                    {userMenuItems.map((item) => (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => setDropdownOpen(false)}
-                        className="block px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
+                  </button>
+
+                  {dropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-lg shadow-xl py-2 z-50 border border-gray-100">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-sm font-medium">Hello, {user.name}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                      {userMenuItems.map((item) => (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          onClick={() => setDropdownOpen(false)}
+                          className="block px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                      <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 transition-colors border-t border-gray-100"
                       >
-                        {item.label}
-                      </Link>
-                    ))}
-                    <button
-                      onClick={() => setIsModalOpen(true)}
-                      className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 transition-colors border-t border-gray-100"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex gap-3 items-center">
-                <Link
-                  to="/login"
-                  className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="bg-white hover:bg-primary-light transition-all duration-300 text-primary px-4 py-2 rounded-lg text-sm font-medium shadow-sm"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex gap-3 items-center">
+                  <Link
+                    to="/login"
+                    className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="bg-white hover:bg-primary-light transition-all duration-300 text-primary px-4 py-2 rounded-lg text-sm font-medium shadow-sm"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
+
 
           {/* Mobile menu button */}
           <button
@@ -189,9 +183,8 @@ const NavBar = () => {
       {/* Mobile Menu */}
       <div
         ref={mobileMenuRef}
-        className={`md:hidden fixed inset-0 bg-primary z-40 transform transition-all duration-300 ease-in-out ${
-          mobileMenuOpen ? "translate-y-0" : "-translate-y-full"
-        }`}
+        className={`md:hidden fixed inset-0 bg-primary z-40 transform transition-all duration-300 ease-in-out ${mobileMenuOpen ? "translate-y-0" : "-translate-y-full"
+          }`}
         style={{ top: "64px" }}
       >
         <div className="px-6 py-4">
@@ -201,11 +194,10 @@ const NavBar = () => {
                 key={path}
                 to={path}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-lg font-medium ${
-                  location.pathname === path
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-lg font-medium ${location.pathname === path
                     ? "bg-white/20 text-white"
                     : "text-white/90 hover:text-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 <Icon size={20} />
                 <span>{label}</span>

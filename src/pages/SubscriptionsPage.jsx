@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Pagination from "../components/Pagination";
 import CustomDatePicker from "../components/CustomDatePicker";
 import CustomDistanceFilter from "../components/CustomDistanceFilter";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { useLoading } from "../loader/LoaderContext";
+import { CategoryApi } from "../Api/Category.api";
 
 const sampleInstructors = [
     {
@@ -56,6 +58,47 @@ const SubscriptionsPage = () => {
     const [instructorPage, setInstructorPage] = useState(1);
     const classesPerPage = 6;
     const instructorsPerPage = 6;
+    const { id } = useParams();
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const type = queryParams.get("name");
+    const { handleLoading } = useLoading();
+    const [classes, setClasses] = useState([])
+
+    // {
+    //   id: 1,
+    //   type: "CIRCUIT TRAINING",
+    //   name: "Total Body Workout - High Intensity Circuit",
+    //   location: "Metzger | 7.4 mi",
+    //   time: "5:15am - 6:15am PDT",
+    //   trainer: "Tiffany Thurston",
+    //   rating: 5,
+    //   reviews: 1969,
+    //   price: 26.25,
+    //   image: "https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg",
+    // },
+
+    console.log("id>>>", id)
+    console.log("name>>>", type)
+
+
+    const getAllCategoriesById = async () => {
+        handleLoading(true);
+        try {
+            const res = await CategoryApi.getAllCategoriesById(id);
+            setClasses(res?.data?.data);
+        } catch (error) {
+            console.log("Error", error);
+        } finally {
+            handleLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (type === "cat") {
+            getAllCategoriesById()
+        }
+    }, [type])
 
     const activities = [
         "Yoga",
@@ -78,106 +121,18 @@ const SubscriptionsPage = () => {
         "Hot Yoga",
     ];
 
-    const classes = [
-        {
-            id: 1,
-            type: "CIRCUIT TRAINING",
-            title: "Total Body Workout - High Intensity Circuit",
-            studio: "Inspired Life Fitness",
-            location: "Metzger | 7.4 mi",
-            time: "5:15am - 6:15am PDT",
-            trainer: "Tiffany Thurston",
-            rating: 5,
-            reviews: 1969,
-            price: 26.25,
-            oldPrice: 35.0,
-            image: "https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg",
-        },
-        {
-            id: 2,
-            type: "CIRCUIT TRAINING",
-            title: "Total Body Workout - Strength Focus",
-            studio: "Inspired Life Fitness",
-            location: "Metzger | 7.4 mi",
-            time: "6:30am - 7:30am PDT",
-            trainer: "Tiffany Thurston",
-            rating: 5,
-            reviews: 1969,
-            price: 26.25,
-            oldPrice: 35.0,
-            image: "https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg",
-        },
-        {
-            id: 3,
-            type: "TWIST YOGA",
-            title: "In-studio 45 min. Yoga Flow",
-            studio: "Twist Yoga",
-            location: "Walluga | 7.5 mi",
-            time: "7:30am - 8:15am PDT",
-            trainer: "Ali Matt",
-            rating: 5,
-            reviews: 1104,
-            price: 22.0,
-            oldPrice: 25.0,
-            image: "https://images.pexels.com/photos/1812964/pexels-photo-1812964.jpeg",
-        },
-        {
-            id: 4,
-            type: "YOGA",
-            title: "Sun & Meditation",
-            studio: "Ether & Stone",
-            location: "11.8 mi",
-            time: "8:30am - 9:30am PDT",
-            trainer: "Jes Nunn",
-            rating: 4.5,
-            reviews: 201,
-            price: 24.0,
-            oldPrice: 28.0,
-            image: "https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg",
-        },
-        {
-            id: 5,
-            type: "TWIST YOGA",
-            title: "In-Studio Power Yoga",
-            studio: "Twist Yoga",
-            location: "Walluga | 7.5 mi",
-            time: "9:30am - 10:30am PDT",
-            trainer: "Carlo Bunting",
-            rating: 5,
-            reviews: 1000,
-            price: 22.0,
-            oldPrice: 25.0,
-            image: "https://images.pexels.com/photos/1812964/pexels-photo-1812964.jpeg",
-        },
-        {
-            id: 6,
-            type: "YOGA",
-            title: "Restorative COREYOGA",
-            studio: "CORE Fitness + Yoga",
-            location: "20.2 mi",
-            time: "10:30am - 11:30am PDT",
-            trainer: "Kristen Hebe",
-            rating: 5,
-            reviews: 154,
-            price: 20.0,
-            oldPrice: 24.0,
-            image: "https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg",
-        },
-    ];
-
     const filteredClasses = classes.filter((classItem) => {
         if (
             searchQuery &&
-            !classItem.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-            !classItem.studio.toLowerCase().includes(searchQuery.toLowerCase()) &&
-            !classItem.trainer.toLowerCase().includes(searchQuery.toLowerCase())
+            !classItem.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+            !classItem.trainer.first_name.toLowerCase().includes(searchQuery.toLowerCase())
         ) {
             return false;
         }
         if (
             selectedActivities.length > 0 &&
             !selectedActivities.some((activity) =>
-                classItem.type.toLowerCase().includes(activity.toLowerCase())
+                classItem.categoryId?.cName.toLowerCase().includes(activity.toLowerCase())
             )
         ) {
             return false;
@@ -366,35 +321,30 @@ const SubscriptionsPage = () => {
                                         <Link
                                             key={index}
                                             className="bg-white rounded-xl shadow overflow-hidden cursor-pointer"
-                                            to={`/sessions/${classItem.id}`}
+                                            to={`/sessions/${classItem._id}`}
                                         >
                                             <div className="relative h-40">
                                                 <img
-                                                    src={classItem.image}
-                                                    alt={classItem.title}
+                                                    src={classItem.media}
+                                                    alt={classItem.name}
                                                     className="w-full h-full object-cover"
                                                 />
                                                 <div className="absolute top-2 left-2 bg-white px-2 py-1 rounded text-xs font-semibold">
-                                                    {classItem.type}
+                                                    {classItem.categoryId?.cName}
                                                 </div>
                                             </div>
                                             <div className="p-4">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <div className="font-bold text-lg">{classItem.title}</div>
+                                                    <div className="font-bold text-lg">{classItem.name}</div>
                                                     <div className="text-right">
                                                         <span className="font-bold text-lg">${classItem.price}</span>
-                                                        {classItem.oldPrice && (
-                                                            <span className="text-sm text-gray-500 line-through ml-1">
-                                                                ${classItem.oldPrice}
-                                                            </span>
-                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="text-gray-700 mb-2">
-                                                    {classItem.studio} | {classItem.location}
+                                                    {classItem.streetName}
                                                 </div>
                                                 <div className="text-gray-700 mb-3">
-                                                    {classItem.time} w/ {classItem.trainer}
+                                                    {classItem.startTime} - {classItem.endTime} w/ {classItem.trainer?.first_name || 'Trainer'}
                                                 </div>
                                                 <div className="flex items-center">
                                                     <div className="flex text-yellow-400 mr-1">
@@ -403,7 +353,9 @@ const SubscriptionsPage = () => {
                                                         ))}
                                                     </div>
                                                     <span className="text-gray-500 text-sm">
-                                                        {classItem.reviews} reviews
+                                                        {/* Assuming reviews count is not in your data */}
+                                                        {/* {classItem.reviews || 0} reviews */}
+                                                        0 reviews
                                                     </span>
                                                 </div>
                                             </div>
