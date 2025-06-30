@@ -1,4 +1,4 @@
-import  { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { sessions } from "./dummyData";
 import { IoLocationOutline } from "react-icons/io5";
@@ -9,6 +9,8 @@ import fitness from "../Assests/fitness.jpg";
 import wellness from "../Assests/wellness.jpg";
 import liveness from "../Assests/liveness.jpg";
 import { useSelector } from "react-redux";
+import { CategoryApi } from "../Api/Category.api";
+import { useLoading } from "../loader/LoaderContext";
 
 const HomePage = () => {
   const user = useSelector((state) => state.auth.user);
@@ -78,26 +80,43 @@ const HomePage = () => {
   const [locError, setLocError] = useState("");
   const locationRef = useRef(null);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [category, setCategory] = useState([
-    {
-      id: 1,
-      title: "Fitness",
-      image: {fitness},
-      alt: "Fitness"
-    },
-    {
-      id: 2,
-      title: "Wellness",
-      image: {wellness},
-      alt: "Wellness"
-    },
-    {
-      id: 3,
-      title: "Liveness",
-      image: {liveness},
-      alt: "Liveness"
+  const [category, setCategory] = useState([]);
+  const [sessionData, setSessions] = useState([]);
+
+  const { handleLoading } = useLoading();
+
+  const getAllCategory = async () => {
+    handleLoading(true);
+    try {
+      const res = await CategoryApi.Allcategory();
+      console.log(res?.data?.data);
+
+      setCategory(res?.data?.data);
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      handleLoading(false);
     }
-  ]);
+  };
+
+  const getAllSessions = async () => {
+    handleLoading(true);
+    try {
+      const res = await CategoryApi.Allsession();
+      console.log(res?.data?.data);
+
+      setSessions(res?.data?.data);
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      handleLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllCategory();
+    getAllSessions();
+  }, []);
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -172,18 +191,18 @@ const HomePage = () => {
     );
   };
 
-  const topCategories = [
-    "Pilates",
-    "Barre",
-    "Dance",
-    "Circuit Training",
-    "Yoga",
-    "HIIT",
-    "Strength",
-    "Cardio",
-    "Boxing",
-    "Meditation",
-  ];
+  // const topCategories = [
+  //   "Pilates",
+  //   "Barre",
+  //   "Dance",
+  //   "Circuit Training",
+  //   "Yoga",
+  //   "HIIT",
+  //   "Strength",
+  //   "Cardio",
+  //   "Boxing",
+  //   "Meditation",
+  // ];
 
   return (
     <div className="animate-fade-in bg-second pb-10">
@@ -400,7 +419,7 @@ const HomePage = () => {
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
             {category.map((cat) => (
               <div
-                key={cat.id}
+                key={cat._id}
                 className="relative cursor-pointer hover:scale-105 transition-transform duration-300 flex-1 rounded-2xl overflow-hidden shadow-lg min-w-[300px] max-w-[400px]"
               >
                 <img
@@ -410,7 +429,7 @@ const HomePage = () => {
                 />
                 <div className="absolute bottom-0 left-0 p-6 z-10">
                   <span className="text-white text-2xl font-bold drop-shadow-lg">
-                    {cat.title}
+                    {cat.cName}
                   </span>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -423,14 +442,21 @@ const HomePage = () => {
       {/* Top Sessions Section */}
       <section className="bg-second py-10 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-3">
-          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize text-fifth">
+          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize text-fifth text-center">
             Top fitness Sessions
           </h2>
           <HorizontalScroll
-            items={topCategories}
+            items={sessionData}
             renderItem={(cat) => (
-              <div className="w-40 h-40 md:w-56 md:h-56 hover:bg-primary cursor-pointer flex items-center justify-center rounded-full bg-green-50 text-lg md:text-2xl font-semibold text-gray-800 shadow-md">
-                {cat}
+              <div
+                className="w-40 h-40 md:w-56 md:h-56 hover:opacity-90 cursor-pointer flex items-center justify-center rounded-full bg-center bg-cover text-lg md:text-2xl font-semibold text-white shadow-md"
+                style={{
+                  backgroundImage: `url(${cat.image})`,
+                }}
+              >
+                <div className="bg-black bg-opacity-50 rounded-full px-4 py-2 text-center">
+                  {cat.sessionName}
+                </div>
               </div>
             )}
           />
@@ -545,7 +571,6 @@ const HomePage = () => {
                       </svg>
                     </span>
                   </button>
-
 
                   {showDropdown && (
                     <div className="absolute mt-1 w-40 md:w-48 bg-white rounded-md shadow-lg z-10">
