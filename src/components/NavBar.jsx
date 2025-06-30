@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Calendar, Home, MapPin, User, Menu, X } from "lucide-react";
 import logo from "../../public/logo/logo.png";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import ConfirmationModal from "./ConfirmationModal";
+import { AuthApi } from "../Api/Auth.api";
+import { logout } from "../store/authSlice";
+import toast from "react-hot-toast";
 
 const NavBar = () => {
   const location = useLocation();
@@ -12,6 +16,8 @@ const NavBar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const navItems = [
     { path: "/", label: "Home", icon: Home },
@@ -25,10 +31,18 @@ const NavBar = () => {
     { path: "/history", label: "History" },
   ];
 
-  const handleLogout = () => {
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      (await AuthApi.logout) && AuthApi.logout(); // Only call if exists
+      dispatch(logout());
+      toast.success("Logout Successfully");
+      navigate("/login");
+    } catch (error) {
+      console.log("error", error);
+    }
     setDropdownOpen(false);
     setMobileMenuOpen(false);
+    setIsModalOpen(false);
   };
 
   const handleLogin = () => {
@@ -84,8 +98,10 @@ const NavBar = () => {
               >
                 <Icon size={18} />
                 <span>{label}</span>
+                {/* <span>{path}</span> */}
               </Link>
             ))}
+            {/* {JSON.stringify(navItems)} */}
           </div>
 
           {/* User actions - Desktop */}
@@ -96,8 +112,20 @@ const NavBar = () => {
                   onClick={() => setDropdownOpen((prev) => !prev)}
                   className="flex items-center space-x-1 focus:outline-none"
                 >
-                  <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
-                    <User className="w-5 h-5 text-white" />
+                  <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+                    {user?.image ? (
+                      <img
+                        src={user.image}
+                        alt={user.name}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : user?.name ? (
+                      <span className="text-white text-lg font-bold">
+                        {user.name.charAt(0).toUpperCase()}
+                      </span>
+                    ) : (
+                      <User className="w-5 h-5 text-white" />
+                    )}
                   </div>
                 </button>
 
@@ -118,7 +146,7 @@ const NavBar = () => {
                       </Link>
                     ))}
                     <button
-                      onClick={handleLogout}
+                      onClick={() => setIsModalOpen(true)}
                       className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-gray-50 transition-colors border-t border-gray-100"
                     >
                       Logout
@@ -203,7 +231,7 @@ const NavBar = () => {
                     </Link>
                   ))}
                   <button
-                    onClick={handleLogout}
+                    onClick={() => setIsModalOpen(true)}
                     className="w-full text-left px-4 py-3 text-lg font-medium text-red-300 hover:text-red-100 hover:bg-white/10 rounded-xl"
                   >
                     Logout
@@ -231,6 +259,15 @@ const NavBar = () => {
           </div>
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleLogout}
+        title="Logout"
+        message="Are you sure you want to logout?"
+        confirmText="Logout"
+        cancelText="Cancel"
+      />
     </>
   );
 };
