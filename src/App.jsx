@@ -41,7 +41,7 @@ const router = createBrowserRouter([
       { path: 'my-sessions', element: <ProtectedRoute> <MySessionPage /> </ProtectedRoute> },
       { path: 'my-session/:id', element: <ProtectedRoute> <MySessionDetail /> </ProtectedRoute> },
       { path: 'payment', element: <ProtectedRoute> <PaymentPage /> </ProtectedRoute> },
-      { path: 'subscriptions', element: <ProtectedRoute> <SubscriptionsPage /> </ProtectedRoute> },
+      { path: 'subscriptions/:id', element: <ProtectedRoute> <SubscriptionsPage /> </ProtectedRoute> },
       { path: 'payments', element: <ProtectedRoute> <PaymentsPage />  </ProtectedRoute> },
       { path: 'history', element: <ProtectedRoute> <HistoryPage /> </ProtectedRoute> },
       { path: 'chat', element: <ProtectedRoute> <ChatPage /></ProtectedRoute> },
