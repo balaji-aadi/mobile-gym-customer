@@ -9,8 +9,14 @@ export const loginUser = createAsyncThunk(
     try {
       const response = await AuthApi.login(credentials);
       console.log("response", response);
+      const user = response.data?.data?.user;
       return {
-        user: response.data?.data?.user,
+        user: {
+          ...user,
+          name:
+            user?.name ||
+            [user?.first_name, user?.last_name].filter(Boolean).join(" "),
+        },
         token: response?.data?.data?.accessToken,
       };
     } catch (error) {

@@ -14,7 +14,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 const ProfilePage = () => {
@@ -27,7 +27,16 @@ const ProfilePage = () => {
     fitnessGoals: user?.fitnessGoals || [],
   });
 
-  console.log("user data", user);
+  useEffect(() => {
+    setFormData({
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+      fitnessGoals: user?.fitnessGoals || [],
+    });
+  }, [user]);
+
+  // console.log("user data", user);
 
   const [isLoading, setIsLoading] = useState(false);
   const [showGoalDropdown, setShowGoalDropdown] = useState(false);
@@ -59,6 +68,17 @@ const ProfilePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    try {
+      // TODO: Add API call to update user profile here
+      // await updateUserProfile(formData);
+      setIsEditing(false);
+    } catch (error) {
+      // TODO: handle error (show toast, etc.)
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -129,7 +149,7 @@ const ProfilePage = () => {
         </div>
 
         <button
-          onClick={() => setIsEditing(!isEditing)}
+          onClick={handleCancel}
           className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
             isEditing
               ? "bg-red-100 hover:bg-red-200 text-red-700"
@@ -305,7 +325,7 @@ const ProfilePage = () => {
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {user.fitnessGoals.length > 0 ? (
+                {user.fitnessGoals?.length > 0 ? (
                   user.fitnessGoals.map((goal) => (
                     <span
                       key={goal}

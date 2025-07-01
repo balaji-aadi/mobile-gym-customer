@@ -110,9 +110,7 @@ const ConfirmationModal = ({
 
               {/* Title and close button */}
               <div className="ml-4 flex-1">
-                <h3 className="text-lg text-primary font-semibold text-gray-900">
-                  {title}
-                </h3>
+                <h3 className="text-lg text-primary font-semibold ">{title}</h3>
                 {showCloseButton && (
                   <button
                     onClick={handleClose}
