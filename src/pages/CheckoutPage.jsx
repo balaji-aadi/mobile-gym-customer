@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { Formik, Form, Field } from "formik";
+import  { useState } from "react";
 import trainer from "../Assests/trainer.jpg";
 import { useLocation, useNavigate } from "react-router-dom";
 import StripePayment from "./Payment/StripePayment";
+import Description from "../components/Description";
 
-// Helper to format time to 12-hour with AM/PM
+
 function formatTimeTo12Hour(time24) {
   if (!time24) return "";
   const [hourStr, minute] = time24.split(":");
@@ -17,12 +17,10 @@ function formatTimeTo12Hour(time24) {
 
 export default function CheckoutPage() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [isPaymentPage, setisPaymentPage] = useState(false);
 
   const classData = location.state?.classData || {};
 
-  const [openStep, setOpenStep] = useState(null);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center py-8">
@@ -35,18 +33,19 @@ export default function CheckoutPage() {
             alt={classData?.name || "Session Image"}
             className="w-full h-72 object-cover object-center rounded mb-4"
           />
-          <div className="text-xs tracking-widest text-gray-400 mb-1">
+          <div className="text-lg tracking-widest text-gray-400 mb-1">
             {classData?.sessionType?.sessionName?.toUpperCase() || "SESSION"}
           </div>
-          <div className="font-medium mb-1 capitalize ">
+          <div className="text-xl font-medium mb-1 capitalize ">
             {classData?.name || "Session Title"}
           </div>
-          <div className="text-xs text-gray-500 mb-2">
-            {/* Show start date, end date, start time, and end time in one line each, with time in 12-hour format */}
+          <div className="text-xs font-medium mb-1 capitalize ">
+            <Description description={classData?.description} />
+          </div>
+          <div className="text-md text-gray-500 mb-2">
             {classData?.date?.length > 0 && (
               <>
                 <div>
-                  {/* <span className="font-semibold">Date:</span>{" "} */}
                   {new Date(classData.date[0]).toLocaleDateString("en-US", {
                     weekday: "short",
                     month: "short",
@@ -93,20 +92,12 @@ export default function CheckoutPage() {
             </div>
           </div>
           <hr className="mt-5 mb-5" />
-          {/* <div className="mt-2">
-            <div className="font-medium">
-              {classData?.streetName || "Studio"}
-            </div>
-            <div className="text-xs text-gray-500">
-              {classData?.city?.name || "City"}
-            </div>
-          </div> */}
         </div>
 
         {/* Right: section */}
         <div className="w-full md:w-1/2 bg-white rounded p-6 shadow-sm flex flex-col gap-6">
           {/* Offer  sections  start*/}
-          <h3 className="ml-5  text-xl font-bold">Order summery</h3>
+          <h3 className="ml-5  text-xl font-bold">Order Summary</h3>
           <div className="bg-[#fafbfc] rounded-lg shadow-sm p-4 border border-gray-100">
             <div className="flex justify-between text-sm mb-2">
               <span>Subtotal</span>
@@ -157,14 +148,6 @@ export default function CheckoutPage() {
           {isPaymentPage && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
               <div className="bg-white rounded-lg shadow-lg max-w-md w-full mx-4 relative">
-                {/* Close (X) button */}
-                {/* <button
-                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl font-bold"
-                  onClick={() => setisPaymentPage(false)}
-                  aria-label="Close"
-                >
-                  &times;
-                </button> */}
                 <StripePayment
                   setisPaymentPage={setisPaymentPage}
                   isPaymentPage={isPaymentPage}

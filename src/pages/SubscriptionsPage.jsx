@@ -23,6 +23,9 @@ const SubscriptionsPage = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const type = queryParams.get("name");
+    const search = queryParams.get("search");
+    const lat = queryParams.get("lat");
+    const lng = queryParams.get("lng");
     const { handleLoading } = useLoading();
     const [classes, setClasses] = useState([])
     const [activities, setActivities] = useState([])
@@ -89,6 +92,18 @@ const SubscriptionsPage = () => {
         }
     };
 
+    const getAllSubscriptionBySearch = async () => {
+        handleLoading(true);
+        try {
+            const res = await FilterApi.filterBySearch(search);
+            setClasses(res.data?.data)
+        } catch (error) {
+            console.log("Error", error);
+        } finally {
+            handleLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (type === "cat") {
             getAllCategoriesById()
@@ -103,6 +118,12 @@ const SubscriptionsPage = () => {
     useEffect(() => {
         getAllTraniners()
     }, [])
+
+    useEffect(() => {
+        if (search) {
+            getAllSubscriptionBySearch()
+        }
+    }, [search])
 
     const filteredClasses = classes.filter((classItem) => {
         if (
@@ -212,24 +233,62 @@ const SubscriptionsPage = () => {
             handleLoading(false)
         }
     }
-
-    const handleFilterSortBy = async (e) => {
-        const val = (e.target.value).toLowerCase();
-        const payload = {
-            sortBy : val,
-            order:"asc"
-        }
+    const handleLatLangFilter = async () => {
         handleLoading(true)
-        try{
-            const res = await FilterApi.filterBySortBy(payload);
-            setClasses(res.data?.data?.subscriptions)
+        const payload = {
+            "coordinates": [lng, lat],
+            "miles": 10
         }
-        catch(err){
+        try {
+            const res = await FilterApi.filterByDistance(payload);
+            setClasses(res.data?.data)
+        }
+        catch (err) {
             console.log(err)
-        }finally{
+        } finally {
             handleLoading(false)
         }
     }
+
+    useEffect(() => {
+        console.log(lat,lng)
+        if(lat && lng){
+            handleLatLangFilter()
+        }
+    },[lat,lng])
+
+    const handleFilterSortBy = async (e) => {
+        const value = e.target.value;
+
+        let sortBy;
+        let order = "asc";
+
+        if (value === "Highest Rated") {
+            sortBy = "rating";
+            order = "desc";
+        } else {
+            sortBy = value.toLowerCase();
+        }
+
+        const payload = {
+            sortBy,
+            order,
+            ...(type === "cat" && { categoryId: id }),
+            ...(type === "session" && { sessionId: id })
+        };
+
+        handleLoading(true);
+
+        try {
+            const res = await FilterApi.filterBySortBy(payload);
+            setClasses(res.data?.data?.subscriptions);
+        } catch (err) {
+            console.error("Filter sort error:", err);
+        } finally {
+            handleLoading(false);
+        }
+    };
+
 
     return (
         <div className="bg-gray-50 min-h-screen">

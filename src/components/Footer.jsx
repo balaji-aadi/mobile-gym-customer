@@ -135,8 +135,7 @@ const Footer = () => {
         </div>
         <div className="text-center md:text-right mt-2 sm:mt-3 md:mt-0 text-xs sm:text-sm">
           <span>
-            Copyright ©2001-2025 OutBox | OutBox Processing is a registered
-            ISO/MSP of Wells Fargo Bank, N.A., Walnut Creek, CA
+            © 2025 OutBox. All rights reserved. | Serving Happy Customers Worldwide
           </span>
         </div>
       </div>

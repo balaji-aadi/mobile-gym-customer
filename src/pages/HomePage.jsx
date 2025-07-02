@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { sessions } from "./dummyData";
 import { IoLocationOutline } from "react-icons/io5";
 import { FaStar, FaApple } from "react-icons/fa";
@@ -14,64 +14,6 @@ import { FilterApi } from "../Api/Filteration.api";
 const HomePage = () => {
   const user = useSelector((state) => state.auth.user);
 
-  const featuredSessions = [
-    {
-      image:
-        "https://images.pexels.com/photos/3184192/pexels-photo-3184192.jpeg?auto=compress&w=400",
-      category: "Circuit Training",
-      price: 26.25,
-      oldPrice: 35.0,
-      title: "Total Body Workout...",
-      studio: "Inspired Life Fitness",
-      location: "Metzger | 7.4 mi",
-      time: "5:15am - 6:15am PDT",
-      trainer: "Tiffany Thurston",
-      rating: 5,
-      reviews: 1969,
-    },
-    {
-      image:
-        "https://images.pexels.com/photos/3184192/pexels-photo-3184192.jpeg?auto=compress&w=400",
-      category: "Circuit Training",
-      price: 26.25,
-      oldPrice: 35.0,
-      title: "Total Body Workout...",
-      studio: "Inspired Life Fitness",
-      location: "Metzger | 7.4 mi",
-      time: "6:30am - 7:30am PDT",
-      trainer: "Tiffany Thurston",
-      rating: 5,
-      reviews: 1969,
-    },
-    {
-      image:
-        "https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg?auto=compress&w=400",
-      category: "Yoga",
-      price: 22.0,
-      oldPrice: 25.0,
-      title: "In-studio 45 min. Y...",
-      studio: "Twist Yoga",
-      location: "Walluga | 7.5 mi",
-      time: "7:30am - 8:15am PDT",
-      trainer: "Ali Matt",
-      rating: 5,
-      reviews: 1104,
-    },
-    {
-      image:
-        "https://images.pexels.com/photos/1552108/pexels-photo-1552108.jpeg?auto=compress&w=400",
-      category: "Yoga",
-      price: 24.0,
-      oldPrice: 28.0,
-      title: "Sun & Meditation",
-      studio: "Ether & Stone",
-      location: "11.8 mi",
-      time: "8:30am - 9:30am PDT",
-      trainer: "Jes Nunn",
-      rating: 4.5,
-      reviews: 201,
-    },
-  ];
 
   const [location, setLocation] = useState("Select location");
   const [locationDropdown, setLocationDropdown] = useState(false);
@@ -83,6 +25,13 @@ const HomePage = () => {
   const [sessionData, setSessions] = useState([]);
   const [subscription, setSubscription] = useState([])
   const [nearMeLocation, setNearMeLocation] = useState([])
+  const [searchTerm, setSearchTerm] = useState("");
+  const [recentSearches, setRecentSearches] = useState(() => {
+    const saved = localStorage.getItem("recentSearches");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showRecent, setShowRecent] = useState(false);
+  const navigate = useNavigate();
 
   const { handleLoading } = useLoading();
 
@@ -148,6 +97,16 @@ const HomePage = () => {
     getNearByLocation();
   }, []);
 
+  const handleSearchSubmit = (term) => {
+    if (!term.trim()) return;
+    let updated = [term, ...recentSearches.filter(s => s !== term)].slice(0, 5);
+    setRecentSearches(updated);
+    localStorage.setItem("recentSearches", JSON.stringify(updated));
+    setShowRecent(false);
+    setSearchTerm("");
+    navigate(`/subscriptions?search=${encodeURIComponent(term)}`);
+  };
+
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
@@ -182,6 +141,8 @@ const HomePage = () => {
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           );
+
+          navigate(`/subscriptions?lat=${latitude}&lng=${longitude}`);
 
           if (!response.ok) {
             throw new Error("Failed to fetch location data");
@@ -265,9 +226,30 @@ const HomePage = () => {
               </span>
               <input
                 type="text"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                onFocus={() => setShowRecent(true)}
+                onBlur={() => setTimeout(() => setShowRecent(false), 200)}
+                onKeyDown={e => {
+                  if (e.key === "Enter") handleSearchSubmit(searchTerm);
+                }}
                 placeholder="Search for anything"
                 className="w-full px-2 py-3 md:py-4 border-0 focus:outline-none text-gray-900 bg-transparent text-sm md:text-base"
               />
+              {showRecent && recentSearches.length > 0 && (
+                <div className="absolute left-0 top-full mt-2 w-full bg-white shadow-lg border z-20">
+                  <div className="px-4 py-2 text-xs font-semibold text-gray-500">Recent Searches</div>
+                  {recentSearches.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-gray-700"
+                      onMouseDown={() => handleSearchSubmit(item)}
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             {/* Location Dropdown */}
             <div
@@ -327,7 +309,10 @@ const HomePage = () => {
                 </div>
               )}
             </div>
-            <button className="bg-primary hover:bg-primary-700 text-white px-4 md:px-6 flex items-center justify-center min-h-[48px]">
+            <button className="bg-primary hover:bg-primary-700 text-white px-4 md:px-6 flex items-center justify-center min-h-[48px]"
+              onClick={() => handleSearchSubmit(searchTerm)}
+              type="button"
+            >
               <svg
                 width="24"
                 height="24"
@@ -524,28 +509,6 @@ const HomePage = () => {
           />
         </div>
       </section>
-
-      {/* Top Reviewed Deals Sessions */}
-      {/* <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize text-fifth">
-              Top Reviewed Deals
-            </h2>
-            <Link
-              to="/subscriptions"
-              className="text-primary-600 font-semibold flex items-center gap-1"
-            >
-              Show all (21) <span>&rarr;</span>
-            </Link>
-          </div>
-          <HorizontalScroll
-            items={featuredSessions}
-            renderItem={(session) => <SubscriptionCards {...session} />}
-            itemClass="mr-4 md:mr-6"
-          />
-        </div>
-      </section> */}
 
       {/* CTA Section */}
       <section

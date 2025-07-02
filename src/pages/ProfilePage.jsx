@@ -1,80 +1,104 @@
-import {
-  Bell,
-  Camera,
-  Check,
-  ChevronDown,
-  ChevronUp,
-  Edit2,
-  Loader2,
-  Mail,
-  Phone,
-  Save,
-  Shield,
-  Target,
-  User,
-  X,
-} from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
+import { Edit2, X, Save, Loader2, Mail, Phone, User, Camera } from "lucide-react";
 
 const ProfilePage = () => {
   const user = useSelector((state) => state.auth.user);
   const [isEditing, setIsEditing] = useState(false);
+  const [activeSection, setActiveSection] = useState(null);
+  const [profileImage, setProfileImage] = useState(user?.profileImage || null);
+  const [imagePreview, setImagePreview] = useState(user?.profileImage || null);
+  const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
     phone: user?.phone || "",
-    fitnessGoals: user?.fitnessGoals || [],
+    address: user?.address || "",
+    city: user?.city || "",
+    zipCode: user?.zipCode || "",
+    country: user?.country || "",
+    state: user?.state || "",
+    birthday: {
+      month: user?.birthday?.month || "",
+      day: user?.birthday?.day || "",
+      year: user?.birthday?.year || "",
+    },
+    gender: user?.gender || "",
   });
 
+  // Sample country and state data
+  const [countries, setCountries] = useState([
+    { code: "US", name: "United States" },
+    { code: "IN", name: "India" },
+    { code: "CA", name: "Canada" },
+    // Add more countries as needed
+  ]);
+
+  const [states, setStates] = useState({
+    US: [
+      { code: "CA", name: "California" },
+      { code: "NY", name: "New York" },
+      { code: "TX", name: "Texas" },
+    ],
+    IN: [
+      { code: "TN", name: "Tamil Nadu" },
+      { code: "MH", name: "Maharashtra" },
+      { code: "DL", name: "Delhi" },
+    ],
+    CA: [
+      { code: "ON", name: "Ontario" },
+      { code: "BC", name: "British Columbia" },
+      { code: "QC", name: "Quebec" },
+    ],
+  });
+
+  const [availableStates, setAvailableStates] = useState([]);
+
   useEffect(() => {
-    setFormData({
-      name: user?.name || "",
-      email: user?.email || "",
-      phone: user?.phone || "",
-      fitnessGoals: user?.fitnessGoals || [],
-    });
-  }, [user]);
-
-  // console.log("user data", user);
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [showGoalDropdown, setShowGoalDropdown] = useState(false);
-
-  const fitnessGoalOptions = [
-    "Weight Loss",
-    "Muscle Building",
-    "Cardio Fitness",
-    "Flexibility",
-    "Strength Training",
-    "Sports Performance",
-    "General Health",
-    "Stress Relief",
-  ];
+    if (formData.country) {
+      setAvailableStates(states[formData.country] || []);
+    } else {
+      setAvailableStates([]);
+    }
+  }, [formData.country, states]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleGoalToggle = (goal) => {
+  const handleBirthdayChange = (e) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      fitnessGoals: prev.fitnessGoals.includes(goal)
-        ? prev.fitnessGoals.filter((g) => g !== goal)
-        : [...prev.fitnessGoals, goal],
+      birthday: { ...prev.birthday, [name]: value },
     }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageEdit = () => {
+    fileInputRef.current.click();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // TODO: Add API call to update user profile here
-      // await updateUserProfile(formData);
+      // TODO: Add API call to update user profile and image
       setIsEditing(false);
+      setActiveSection(null);
     } catch (error) {
-      // TODO: handle error (show toast, etc.)
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -86,9 +110,32 @@ const ProfilePage = () => {
       name: user?.name || "",
       email: user?.email || "",
       phone: user?.phone || "",
-      fitnessGoals: user?.fitnessGoals || [],
+      address: user?.address || "",
+      city: user?.city || "",
+      zipCode: user?.zipCode || "",
+      country: user?.country || "",
+      state: user?.state || "",
+      birthday: {
+        month: user?.birthday?.month || "",
+        day: user?.birthday?.day || "",
+        year: user?.birthday?.year || "",
+      },
+      gender: user?.gender || "",
     });
+    setImagePreview(user?.profileImage || null);
+    setProfileImage(user?.profileImage || null);
     setIsEditing(false);
+    setActiveSection(null);
+  };
+
+  const openEditSection = (section) => {
+    setIsEditing(true);
+    setActiveSection(section);
+  };
+
+  const formatDate = (birthday) => {
+    if (!birthday?.month || !birthday?.day || !birthday?.year) return "Not specified";
+    return `${birthday.month}/${birthday.day}/${birthday.year}`;
   };
 
   if (!user) {
@@ -104,7 +151,7 @@ const ProfilePage = () => {
           <p className="text-gray-600 mb-6">
             Please sign in to view your profile
           </p>
-          <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+          <button className="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors">
             Sign In
           </button>
         </div>
@@ -113,289 +160,325 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Profile Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="relative group">
-            <div className="h-24 w-24 bg-gradient-to-br from-blue-500 rounded-full flex items-center justify-center shadow-lg">
-              <User className="h-10 w-10 text-white" />
+    <div className="mx-auto px-4 py-10 flex flex-col items-center">
+      {/* Profile Image & Name */}
+      <div className="flex flex-col items-center mb-8 w-full">
+        <div className="relative group mb-4">
+          <div className="h-28 w-28 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+            {imagePreview ? (
+              <img
+                src={imagePreview}
+                alt="Profile Preview"
+                className="object-cover h-full w-full rounded-full"
+              />
+            ) : (
+              <User className="h-12 w-12 text-white" />
+            )}
+            <button
+              type="button"
+              onClick={handleImageEdit}
+              className="absolute bottom-2 right-2 bg-white p-1 rounded-full shadow hover:bg-gray-100 transition-all border border-gray-200"
+              title="Edit profile image"
+            >
+              <Camera className="h-5 w-5 text-gray-700" />
+            </button>
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </div>
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">{user.name}</h1>
+        <p className="text-gray-500 flex items-center gap-1 mb-2">
+          <Mail className="h-4 w-4" />
+          {user.email}
+        </p>
+      </div>
+
+      <div className="w-full flex gap-10">
+        {/* Account Information */}
+        <div className="bg-white w-1/2 rounded-xl shadow-sm border border-gray-200 mb-6 p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Account Information</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <p className="text-sm text-gray-500">Name</p>
+              <p className="font-medium">{user.name}</p>
             </div>
-            {isEditing && (
-              <button className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md group-hover:opacity-100 opacity-90 transition-opacity">
-                <Camera className="h-4 w-4 text-gray-700" />
+            <div>
+              <p className="text-sm text-gray-500">Email</p>
+              <p className="font-medium">{user.email}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Personal Information */}
+        <div className="bg-white w-full rounded-xl shadow-sm border border-gray-200 mb-6 p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">Personal Information</h2>
+            {isEditing && activeSection === 'personal' ? (
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg flex items-center gap-2"
+                >
+                  <Save className="h-4 w-4" />
+                  Save Changes
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => openEditSection('personal')}
+                disabled={isEditing && activeSection !== 'personal'}
+                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${isEditing && activeSection !== 'personal'
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-primary hover:bg-primary-dark text-white'
+                  }`}
+              >
+                <Edit2 className="h-4 w-4" />
+                Edit
               </button>
             )}
           </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="bg-transparent border-b-2 border-blue-500 focus:outline-none"
-                />
-              ) : (
-                user.name
-              )}
-            </h1>
-            <p className="text-gray-500 flex items-center gap-1">
-              <Mail className="h-4 w-4" />
-              {user.email}
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={handleCancel}
-          className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
-            isEditing
-              ? "bg-red-100 hover:bg-red-200 text-red-700"
-              : "bg-blue-100 hover:bg-blue-200 text-blue-700"
-          }`}
-        >
-          {isEditing ? (
-            <X className="h-4 w-4" />
-          ) : (
-            <Edit2 className="h-4 w-4" />
-          )}
-          <span>{isEditing ? "Cancel" : "Edit Profile"}</span>
-        </button>
-      </div>
-
-      {/* Profile Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 md:p-8">
-          {/* Personal Information Section */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-100 p-2 rounded-lg">
-                <User className="h-5 w-5 text-blue-600" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                Personal Information
-              </h2>
-            </div>
-
+          {isEditing && activeSection === 'personal' ? (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
-                </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  />
-                ) : (
-                  <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-800">
-                    {user.name}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                {isEditing ? (
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  />
-                ) : (
-                  <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-800 flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-gray-500" />
-                    {user.email}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number
-                </label>
-                {isEditing ? (
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  />
-                ) : (
-                  <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-800 flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-gray-500" />
-                    {user.phone || "Not provided"}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Fitness Goals Section */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="bg-purple-100 p-2 rounded-lg">
-                <Target className="h-5 w-5 text-primary" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                Fitness Goals
-              </h2>
-            </div>
-
-            {isEditing ? (
-              <div className="space-y-4">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setShowGoalDropdown(!showGoalDropdown)}
-                    className="w-full flex justify-between items-center px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700"
+                <label className="block text-sm font-medium text-gray-700 mb-1">Birthday</label>
+                <div className="grid grid-cols-3 gap-4">
+                  <select
+                    name="month"
+                    value={formData.birthday.month}
+                    onChange={handleBirthdayChange}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   >
-                    <span>Select your fitness goals</span>
-                    {showGoalDropdown ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </button>
-
-                  {showGoalDropdown && (
-                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg p-2 grid grid-cols-2 gap-2">
-                      {fitnessGoalOptions.map((goal) => (
-                        <div key={goal} className="flex items-center">
-                          <button
-                            type="button"
-                            onClick={() => handleGoalToggle(goal)}
-                            className={`w-full text-left p-2 rounded-md text-sm flex items-center gap-2 ${
-                              formData.fitnessGoals.includes(goal)
-                                ? "bg-blue-50 text-blue-700"
-                                : "hover:bg-gray-100"
-                            }`}
-                          >
-                            <div
-                              className={`h-4 w-4 rounded-sm border flex items-center justify-center ${
-                                formData.fitnessGoals.includes(goal)
-                                  ? "bg-blue-600 border-blue-600 text-white"
-                                  : "border-gray-300"
-                              }`}
-                            >
-                              {formData.fitnessGoals.includes(goal) && (
-                                <Check className="h-3 w-3" />
-                              )}
-                            </div>
-                            {goal}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                    <option value="">MM</option>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <option key={i + 1} value={(i + 1).toString().padStart(2, '0')}>
+                        {(i + 1).toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    name="day"
+                    value={formData.birthday.day}
+                    onChange={handleBirthdayChange}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  >
+                    <option value="">DD</option>
+                    {Array.from({ length: 31 }, (_, i) => (
+                      <option key={i + 1} value={(i + 1).toString().padStart(2, '0')}>
+                        {(i + 1).toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    name="year"
+                    value={formData.birthday.year}
+                    onChange={handleBirthdayChange}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  >
+                    <option value="">YYYY</option>
+                    {Array.from({ length: 100 }, (_, i) => (
+                      <option key={2023 - i} value={2023 - i}>
+                        {2023 - i}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                >
+                  <option value="">Not selected</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <p className="text-sm text-gray-500">Birthday</p>
+                <p className="font-medium">{formatDate(user.birthday)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Gender</p>
+                <p className="font-medium">{user.gender || "Not selected"}</p>
+              </div>
+            </div>
+          )}
+        </div>
 
-                <div className="flex flex-wrap gap-2 min-h-12">
-                  {formData.fitnessGoals.map((goal) => (
-                    <span
-                      key={goal}
-                      className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
-                    >
-                      {goal}
-                      <button
-                        type="button"
-                        onClick={() => handleGoalToggle(goal)}
-                        className="ml-2 text-blue-500 hover:text-blue-700"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
+        {/* Contact Information */}
+        <div className="bg-white w-full rounded-xl shadow-sm border border-gray-200 mb-6 p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">Contact Information</h2>
+            {isEditing && activeSection === 'contact' ? (
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg flex items-center gap-2"
+                >
+                  <Save className="h-4 w-4" />
+                  Save Changes
+                </button>
               </div>
             ) : (
-              <div className="flex flex-wrap gap-2">
-                {user.fitnessGoals?.length > 0 ? (
-                  user.fitnessGoals.map((goal) => (
-                    <span
-                      key={goal}
-                      className="inline-flex items-center bg-purple-100 text-primary px-3 py-1 rounded-full text-sm font-medium"
-                    >
-                      {goal}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-gray-500">No fitness goals selected</p>
-                )}
-              </div>
+              <button
+                onClick={() => openEditSection('contact')}
+                disabled={isEditing && activeSection !== 'contact'}
+                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${isEditing && activeSection !== 'contact'
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-primary hover:bg-primary-dark text-white'
+                  }`}
+              >
+                <Edit2 className="h-4 w-4" />
+                Edit
+              </button>
             )}
           </div>
-        </div>
-
-        {/* Form Actions */}
-        {isEditing && (
-          <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors flex items-center gap-2"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-              <span>Save Changes</span>
-            </button>
-          </div>
-        )}
-      </form>
-
-      {/* Additional Sections */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-green-100 p-2 rounded-lg">
-              <Shield className="h-5 w-5 text-green-600" />
+          {isEditing && activeSection === 'contact' ? (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Zip Code</label>
+                  <input
+                    type="text"
+                    name="zipCode"
+                    value={formData.zipCode}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                  <select
+                    name="country"
+                    value={formData.country}
+                    onChange={(e) => {
+                      handleChange(e);
+                      setFormData(prev => ({ ...prev, state: "" }));
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  >
+                    <option value="">Select Country</option>
+                    {countries.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                  <select
+                    name="state"
+                    value={formData.state}
+                    onChange={handleChange}
+                    disabled={!formData.country}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all disabled:bg-gray-100"
+                  >
+                    <option value="">Select State</option>
+                    {availableStates.map((state) => (
+                      <option key={state.code} value={state.code}>
+                        {state.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                />
+              </div>
             </div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              Account Security
-            </h2>
-          </div>
-          <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            Change Password
-          </button>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-orange-100 p-2 rounded-lg">
-              <Bell className="h-5 w-5 text-orange-600" />
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500">Address</p>
+                <p className="font-medium">{user.address || "Not specified"}</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">City</p>
+                  <p className="font-medium">{user.city || "Not specified"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Zip Code</p>
+                  <p className="font-medium">{user.zipCode || "Not specified"}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Country</p>
+                  <p className="font-medium">
+                    {countries.find(c => c.code === user.country)?.name || "Not specified"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">State</p>
+                  <p className="font-medium">
+                    {user.country && states[user.country]?.find(s => s.code === user.state)?.name || "Not specified"}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Phone</p>
+                <p className="font-medium flex items-center gap-1">
+                  <Phone className="h-4 w-4" />
+                  {user.phone || "Not specified"}
+                </p>
+              </div>
             </div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              Notifications
-            </h2>
-          </div>
-          <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            Manage Notification Preferences
-          </button>
+          )}
         </div>
       </div>
     </div>
