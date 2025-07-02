@@ -2,12 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { sessions } from "./dummyData";
 import { IoLocationOutline } from "react-icons/io5";
-import { FaStar, FaApple, FaAndroid } from "react-icons/fa";
+import { FaStar, FaApple } from "react-icons/fa";
+import { DiAndroid } from "react-icons/di";
 import HorizontalScroll from "../components/HorizontalScroll";
 import SubscriptionCards from "../components/SubscriptionCards";
 import { useSelector } from "react-redux";
 import { CategoryApi } from "../Api/Category.api";
 import { useLoading } from "../loader/LoaderContext";
+import { FilterApi } from "../Api/Filteration.api";
 
 const HomePage = () => {
   const user = useSelector((state) => state.auth.user);
@@ -80,6 +82,7 @@ const HomePage = () => {
   const [category, setCategory] = useState([]);
   const [sessionData, setSessions] = useState([]);
   const [subscription, setSubscription] = useState([])
+  const [nearMeLocation, setNearMeLocation] = useState([])
 
   const { handleLoading } = useLoading();
 
@@ -99,7 +102,26 @@ const HomePage = () => {
     handleLoading(true);
     try {
       const res = await CategoryApi.getAllSubscription();
+      console.log(res.data?.data)
       setSubscription(res?.data?.data);
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      handleLoading(false);
+    }
+  };
+
+  const getNearByLocation = async () => {
+    const lat = localStorage.getItem("latitude")
+    const lang = localStorage.getItem("longitude")
+    const payload = {
+      coordinates : [lang, lat],
+      miles : 25
+    }
+    handleLoading(true);
+    try {
+      const res = await FilterApi.filterByDistance(payload);
+      setNearMeLocation(res?.data?.data);
     } catch (error) {
       console.log("Error", error);
     } finally {
@@ -122,14 +144,14 @@ const HomePage = () => {
   useEffect(() => {
     getAllCategory();
     getAllSessions();
-    getAllSubscription()
+    getAllSubscription();
+    getNearByLocation();
   }, []);
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event) {
       if (locationRef.current && !locationRef.current.contains(event.target)) {
@@ -221,7 +243,7 @@ const HomePage = () => {
           </h1>
           {/* Subheading */}
           <p className="text-base sm:text-lg md:text-xl mb-6 md:mb-8 max-w-xl md:max-w-2xl mx-auto text-center animate-slide-up text-[#FCEEE5]">
-            Your new favorite studios, salons, and spas are just a search away.
+            Your next workout, wellness class, or live session is just a click away
           </p>
           {/* Search Bar with Location - Side by Side */}
           <div className="w-full max-w-lg sm:max-w-3xl mx-auto mb-6 md:mb-8 animate-slide-up flex flex-col sm:flex-row gap-2 bg-white rounded-lg shadow-lg">
@@ -324,7 +346,7 @@ const HomePage = () => {
           {/* App CTA */}
           <div className="flex items-center gap-2 animate-slide-up">
             <FaApple className="text-xl md:text-2xl text-white" />
-            <FaAndroid className="text-xl md:text-2xl text-white" />
+            <DiAndroid className="text-xl md:text-2xl text-white" />
             <span className="text-white font-semibold text-sm md:text-base">
               Get the app today
             </span>
@@ -467,7 +489,7 @@ const HomePage = () => {
               Find your new favorite classes
             </h2>
             <Link
-              to={`/subscriptions/${1}`}
+              to={`/subscriptions`}
               className="text-primary-600 font-semibold flex items-center gap-1"
             >
               Show all ({subscription?.length}) <span>&rarr;</span>
@@ -482,7 +504,7 @@ const HomePage = () => {
       </section>}
 
       {/* Location near you Sessions */}
-      {/* <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+      <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
             <h2 className="text-xl md:text-3xl font-bold capitalize text-fifth">
@@ -492,16 +514,16 @@ const HomePage = () => {
               to="/subscriptions"
               className="text-primary-600 font-semibold flex items-center gap-1"
             >
-              Show all (21) <span>&rarr;</span>
+              Show all ({nearMeLocation?.length}) <span>&rarr;</span>
             </Link>
           </div>
           <HorizontalScroll
-            items={featuredSessions}
+            items={nearMeLocation}
             renderItem={(session) => <SubscriptionCards {...session} />}
             itemClass="mr-4 md:mr-6"
           />
         </div>
-      </section> */}
+      </section>
 
       {/* Top Reviewed Deals Sessions */}
       {/* <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">

@@ -31,6 +31,41 @@ const LoginPage = () => {
       .required("Password is required"),
   });
 
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocError("Geolocation is not supported by your browser");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          localStorage.setItem("latitude",latitude)
+          localStorage.setItem("longitude", longitude)
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch location data");
+          }
+
+        } catch (error) {
+          console.error("Geolocation error:", error);
+        } 
+      },
+      (error) => {
+        console.error("Geolocation permission error:", error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+      }
+    );
+  };
+
   const formik = useFormik({
     initialValues: {
       emailOrPhone: "",
@@ -42,6 +77,7 @@ const LoginPage = () => {
       handleLoading(true)
       try {
         const res = await dispatch(loginUser(values)).unwrap();
+        handleUseCurrentLocation()
         if (values.rememberMe) {
           localStorage.setItem("rememberedEmailOrPhone", values.emailOrPhone);
           localStorage.setItem("rememberedPassword", values.password);

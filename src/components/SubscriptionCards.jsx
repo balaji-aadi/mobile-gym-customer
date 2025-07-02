@@ -1,5 +1,6 @@
 import { FaStar } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import RatingStars from "./RatingStars";
 
 const getInitials = (name) => {
   if (!name) return "NA";
@@ -37,9 +38,10 @@ const SubscriptionCards = ({
   name,
   description,
   startTime,
+  endTime,
   trainer,
-  rating = 4,
-  reviews = 120,
+  averageRating,
+  totalReviews,
 }) => {
   const hasImage = Boolean(media);
   const initials = getInitials(name);
@@ -78,7 +80,7 @@ const SubscriptionCards = ({
           </span>
         </div>
 
-        <h3 className="font-semibold text-lg mb-1 capitalize text-gray-800">
+        <h3 className="font-semibold text-lg mb-1 capitalize text-gray-800 line-clamp-1">
           {name}
         </h3>
 
@@ -100,22 +102,11 @@ const SubscriptionCards = ({
               d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          {startTime} w/ {trainer?.first_name}
+          {startTime} - {endTime} w/ {trainer?.first_name} {trainer?.last_name}
         </div>
 
         <div className="flex items-center">
-          <div className="flex text-yellow-400 mr-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <FaStar
-                key={i}
-                className={i < Math.round(rating) ? "" : "text-gray-200"}
-                size={12}
-              />
-            ))}
-          </div>
-          <span className="text-xs text-gray-500">
-            {rating} ({reviews})
-          </span>
+          <RatingStars rating={averageRating} totalReviews={totalReviews} />
         </div>
       </div>
     </div>

@@ -21,7 +21,7 @@ const NavBar = () => {
 
   const navItems = [
     // { path: "/", label: "Home", icon: Home },
-    { path: "/subscriptions", label: "Deals", icon: Calendar },
+    { path: "/subscriptions", label: "DEALS", icon: Calendar },
     // { path: "/locations", label: "Location", icon: MapPin },
   ];
 
@@ -152,13 +152,13 @@ const NavBar = () => {
                     to="/login"
                     className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
                   >
-                    Login
+                    LOG IN
                   </Link>
                   <Link
                     to="/signup"
                     className="bg-white hover:bg-primary-light transition-all duration-300 text-primary px-4 py-2 rounded-lg text-sm font-medium shadow-sm"
                   >
-                    Sign Up
+                    SIGN UP
                   </Link>
                 </div>
               )}

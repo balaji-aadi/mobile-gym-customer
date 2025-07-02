@@ -5,55 +5,16 @@ import CustomDistanceFilter from "../components/CustomDistanceFilter";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useLoading } from "../loader/LoaderContext";
 import { CategoryApi } from "../Api/Category.api";
-
-const sampleInstructors = [
-    {
-        name: "Mariela Carrod...",
-        activities: "YOGA",
-        location: "South Beach",
-        image: "https://randomuser.me/api/portraits/women/1.jpg",
-    },
-    {
-        name: "Tricksee",
-        activities: "DANCE | POLE FITNESS",
-        location: "Miss Fit Academy",
-        image: "https://randomuser.me/api/portraits/women/2.jpg",
-    },
-    {
-        name: "Odyssey",
-        activities: "POLE FITNESS",
-        location: "Miss Fit Academy",
-        image: "https://randomuser.me/api/portraits/women/3.jpg",
-    },
-    {
-        name: "Moxie",
-        activities: "POLE FITNESS",
-        location: "Miss Fit Academy",
-        image: "https://randomuser.me/api/portraits/women/4.jpg",
-    },
-    {
-        name: "Susan",
-        activities: "CYCLING | OTHER | ...",
-        location: "NuYu Revolution",
-        image: "https://randomuser.me/api/portraits/women/5.jpg",
-    },
-    {
-        name: "Kristina McMa...",
-        activities: "INTERVAL TRAINING...",
-        location: "BOARD30 Ponte Ve...",
-        image: "https://randomuser.me/api/portraits/women/6.jpg",
-    },
-    // Add more as needed
-];
+import moment from "moment";
+import { BsCalendarDateFill } from "react-icons/bs";
+import { FilterApi } from "../Api/Filteration.api";
 
 const SubscriptionsPage = () => {
     const [selectedTab, setSelectedTab] = useState("classes");
     const [selectedActivities, setSelectedActivities] = useState([]);
-    const [showMoreActivities, setShowMoreActivities] = useState(false);
-    const [selectedTime, setSelectedTime] = useState("Anytime");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedDate, setSelectedDate] = useState(null);
-    const [selectedDistance, setSelectedDistance] = useState("Auto (25 miles)");
+    const [selectedDistance, setSelectedDistance] = useState("Select Miles");
     const [classPage, setClassPage] = useState(1);
     const [instructorPage, setInstructorPage] = useState(1);
     const classesPerPage = 6;
@@ -64,23 +25,8 @@ const SubscriptionsPage = () => {
     const type = queryParams.get("name");
     const { handleLoading } = useLoading();
     const [classes, setClasses] = useState([])
-
-    // {
-    //   id: 1,
-    //   type: "CIRCUIT TRAINING",
-    //   name: "Total Body Workout - High Intensity Circuit",
-    //   location: "Metzger | 7.4 mi",
-    //   time: "5:15am - 6:15am PDT",
-    //   trainer: "Tiffany Thurston",
-    //   rating: 5,
-    //   reviews: 1969,
-    //   price: 26.25,
-    //   image: "https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg",
-    // },
-
-    console.log("id>>>", id)
-    console.log("name>>>", type)
-
+    const [activities, setActivities] = useState([])
+    const [trainers, setTrainers] = useState([])
 
     const getAllCategoriesById = async () => {
         handleLoading(true);
@@ -94,32 +40,69 @@ const SubscriptionsPage = () => {
         }
     };
 
+    const getAllSubscription = async () => {
+        handleLoading(true);
+        try {
+            const res = await CategoryApi.getAllSubscription();
+            setClasses(res?.data?.data);
+        } catch (error) {
+            console.log("Error", error);
+        } finally {
+            handleLoading(false);
+        }
+    };
+
+    const getAllSubscriptionBySessionId = async () => {
+        handleLoading(true);
+        try {
+            const res = await CategoryApi.getSubscriptionBySessionId(id);
+            setClasses(res?.data?.data);
+        } catch (error) {
+            console.log("Error", error);
+        } finally {
+            handleLoading(false);
+        }
+    };
+
+    const getAllSessionsByCategoryId = async () => {
+        handleLoading(true);
+        try {
+            const res = id ? await CategoryApi.getAllSessionByCategoryId(id) : await CategoryApi.Allsession();
+            setActivities(res?.data?.data);
+        } catch (error) {
+            console.log("Error", error);
+        } finally {
+            handleLoading(false);
+        }
+    };
+
+    const getAllTraniners = async () => {
+        handleLoading(true);
+        try {
+            const res = await CategoryApi.getAllTrainers();
+            setTrainers(res.data?.data)
+
+        } catch (error) {
+            console.log("Error", error);
+        } finally {
+            handleLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (type === "cat") {
             getAllCategoriesById()
+        } else if (type === "session") {
+            getAllSubscriptionBySessionId()
+        } else {
+            getAllSubscription()
         }
-    }, [type])
+        getAllSessionsByCategoryId()
+    }, [type, id])
 
-    const activities = [
-        "Yoga",
-        "Barre",
-        "Pilates",
-        "Cycling",
-        "Bootcamp",
-        "Meditation",
-        "Strength-Training",
-        "Crossfit",
-        "HIIT",
-        "Dance",
-        "Boxing",
-        "Martial Arts",
-        "Swimming",
-        "Running",
-        "Functional Training",
-        "Stretching",
-        "Aerial Yoga",
-        "Hot Yoga",
-    ];
+    useEffect(() => {
+        getAllTraniners()
+    }, [])
 
     const filteredClasses = classes.filter((classItem) => {
         if (
@@ -129,54 +112,124 @@ const SubscriptionsPage = () => {
         ) {
             return false;
         }
-        if (
-            selectedActivities.length > 0 &&
-            !selectedActivities.some((activity) =>
-                classItem.categoryId?.cName.toLowerCase().includes(activity.toLowerCase())
-            )
-        ) {
-            return false;
-        }
-
-        if (selectedTime !== "Anytime") {
-            const timeRange = selectedTime.match(/\d{1,2}:\d{2}\s*[AP]M/g);
-            if (timeRange) {
-                const [startTime, endTime] = timeRange;
-                const classStartTime = classItem.time.split(" - ")[0];
-                if (
-                    !(
-                        classStartTime >= startTime &&
-                        classStartTime <= endTime
-                    )
-                ) {
-                    return false;
-                }
-            } else if (selectedTime.includes("Before")) {
-                const cutoffTime = selectedTime.match(/\d{1,2}:\d{2}\s*[AP]M/)[0];
-                const classStartTime = classItem.time.split(" - ")[0];
-                if (classStartTime >= cutoffTime) return false;
-            } else if (selectedTime.includes("After")) {
-                const cutoffTime = selectedTime.match(/\d{1,2}:\d{2}\s*[AP]M/)[0];
-                const classStartTime = classItem.time.split(" - ")[0];
-                if (classStartTime <= cutoffTime) return false;
-            }
-        }
-
         return true;
     });
+
     const paginatedClasses = filteredClasses.slice((classPage - 1) * classesPerPage, classPage * classesPerPage);
     const totalClassPages = Math.ceil(filteredClasses.length / classesPerPage);
 
-    const filteredInstructors = sampleInstructors.filter((inst) =>
-        searchQuery === "" ||
-        inst.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inst.activities.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inst.location.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    const paginatedInstructors = filteredInstructors.slice((instructorPage - 1) * instructorsPerPage, instructorPage * instructorsPerPage);
-    const totalInstructorPages = Math.ceil(filteredInstructors.length / instructorsPerPage);
 
-    const visibleActivities = showMoreActivities ? activities : activities.slice(0, 8);
+    const paginatedInstructors = trainers.slice((instructorPage - 1) * instructorsPerPage, instructorPage * instructorsPerPage);
+    const totalInstructorPages = Math.ceil(trainers.length / instructorsPerPage);
+
+
+    const formatDate = (date) => {
+        const res = moment(date).format("YYYY-MM-DD");
+        return res
+    }
+
+    const handleDateFilter = async (date) => {
+        setSelectedDate(date)
+        const payload = {
+            date: [formatDate(date)]
+        }
+        handleLoading(true)
+        try {
+            const res = await FilterApi.filterByDate(payload);
+            setClasses(res.data?.data)
+        }
+        catch (err) {
+            console.log(err)
+        } finally {
+            handleLoading(false)
+        }
+    }
+
+    const clearAllFilters = () => {
+        setSelectedActivities([]);
+        setSearchQuery("");
+        setSelectedDate(null);
+        setSelectedDistance("Select Miles");
+        if (type === "cat") {
+            getAllCategoriesById()
+        } else if (type === "session") {
+            getAllSubscriptionBySessionId()
+        } else {
+            getAllSubscription()
+        }
+    };
+
+    const handleFilterByTrainer = async (trainerId) => {
+        handleLoading(true)
+        try {
+            const res = await FilterApi.filterByTrainerId(trainerId)
+            setClasses(res.data?.data)
+            setSelectedTab("classes")
+        }
+        catch (err) {
+            console.log(err)
+        } finally {
+            handleLoading(false)
+        }
+    }
+
+    const handleActivityToggle = async (activityId) => {
+        let updatedActivities;
+        if (selectedActivities.includes(activityId)) {
+            updatedActivities = [];
+        } else {
+            updatedActivities = [activityId];
+        }
+        setSelectedActivities(updatedActivities);
+
+        if (updatedActivities.length > 0) {
+            const res = await CategoryApi.getSubscriptionBySessionId(updatedActivities[0]);
+            setClasses(res.data?.data || []);
+        } else if (id) {
+            getAllCategoriesById()
+        } else {
+            getAllSubscription()
+        }
+    };
+
+    const handleDistanceFilter = async (dis) => {
+        handleLoading(true)
+        setSelectedDistance(dis)
+        const lati = localStorage.getItem("latitude")
+        const longi = localStorage.getItem("longitude")
+        const payload = {
+            "coordinates": [longi, lati],
+            "miles": parseFloat(dis)
+        }
+
+        try {
+            const res = await FilterApi.filterByDistance(payload);
+            setClasses(res.data?.data)
+        }
+        catch (err) {
+            console.log(err)
+        } finally {
+            handleLoading(false)
+        }
+    }
+
+    const handleFilterSortBy = async (e) => {
+        const val = (e.target.value).toLowerCase();
+        const payload = {
+            sortBy : val,
+            order:"asc"
+        }
+        handleLoading(true)
+        try{
+            const res = await FilterApi.filterBySortBy(payload);
+            setClasses(res.data?.data?.subscriptions)
+        }
+        catch(err){
+            console.log(err)
+        }finally{
+            handleLoading(false)
+        }
+    }
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -197,17 +250,17 @@ const SubscriptionsPage = () => {
                             INSTRUCTORS
                         </button>
                         {/* Date Filter */}
-                        <div className="flex items-center gap-2 ml-2">
-                            <CustomDatePicker selected={selectedDate} onChange={date => setSelectedDate(date)} />
-                        </div>
+                        {selectedTab === "classes" && <div className="flex items-center gap-2 ml-2">
+                            <CustomDatePicker selected={selectedDate} onChange={(date) => handleDateFilter(date)} />
+                        </div>}
                         {/* Distance Filter */}
-                        <div className="flex items-center gap-2 ml-2">
+                        {selectedTab === "classes" && <div className="flex items-center gap-2 ml-2">
                             <CustomDistanceFilter
                                 value={selectedDistance}
-                                onChange={setSelectedDistance}
-                                options={["Auto (25 miles)", "1 mile", "5 miles", "10 miles", "15 miles", "50 miles", "50+ miles"]}
+                                onChange={(dis) => handleDistanceFilter(dis)}
+                                options={["25 miles", "1 mile", "5 miles", "10 miles", "15 miles", "50 miles", "50+ miles"]}
                             />
-                        </div>
+                        </div>}
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="text-gray-500 text-sm">
@@ -216,14 +269,14 @@ const SubscriptionsPage = () => {
                         <span className="text-gray-700 font-semibold text-sm">
                             {selectedTab === "classes"
                                 ? `${(classPage - 1) * classesPerPage + 1}-${Math.min(classPage * classesPerPage, filteredClasses.length)} results of ${filteredClasses.length}`
-                                : `${(instructorPage - 1) * instructorsPerPage + 1}-${Math.min(instructorPage * instructorsPerPage, filteredInstructors.length)} results of ${filteredInstructors.length}`
+                                : `${Math.min(instructorPage * instructorsPerPage, trainers.length)} results of ${trainers.length}`
                             }
                         </span>
                     </div>
                 </div>
 
                 <h1 className="text-2xl md:text-3xl font-bold mb-6">
-                    Best {selectedTab === "classes" ? "Classes" : "Instructors"} in India, OR Dubai
+                    Best {selectedTab === "classes" ? "Classes" : "Instructors"} in United Arab Emirates
                 </h1>
 
                 <div className="flex flex-col md:flex-row gap-8">
@@ -233,7 +286,7 @@ const SubscriptionsPage = () => {
                             <div className="bg-white rounded-xl shadow p-6 mb-6">
                                 <div className="flex justify-between items-center mb-4">
                                     <span className="font-semibold text-lg">FILTERS</span>
-                                    <button className="text-sm text-primary-600 font-semibold">
+                                    <button className="text-sm text-primary-600 font-semibold" onClick={clearAllFilters}>
                                         Clear all
                                     </button>
                                 </div>
@@ -243,7 +296,7 @@ const SubscriptionsPage = () => {
                                         <input
                                             type="text"
                                             placeholder="Search..."
-                                            className="w-full p-2 border border-gray-300 rounded-lg pl-8"
+                                            className="w-full p-2 border border-gray-300 rounded-lg pl-8 outline-none"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                         />
@@ -264,37 +317,26 @@ const SubscriptionsPage = () => {
                                     </div>
                                 </div>
 
-                                <div className="mb-6">
+                                {activities.length > 0 && <div className="mb-6">
                                     <div className="font-semibold text-gray-800 mb-2">
                                         Activities
                                     </div>
-                                    {visibleActivities.map((activity) => (
+                                    {activities.map((activity) => (
                                         <label
-                                            key={activity}
+                                            key={activity?._id}
                                             className="flex items-center gap-2 mb-1 cursor-pointer"
                                         >
                                             <input
                                                 type="checkbox"
-                                                checked={selectedActivities.includes(activity)}
-                                                onChange={() =>
-                                                    setSelectedActivities((prev) =>
-                                                        prev.includes(activity)
-                                                            ? prev.filter((a) => a !== activity)
-                                                            : [...prev, activity]
-                                                    )
-                                                }
+                                                checked={selectedActivities.includes(activity._id)}
+                                                onChange={() => handleActivityToggle(activity._id)}
                                                 className="accent-primary-600"
                                             />
-                                            <span className="text-gray-700">{activity}</span>
+                                            <span className="text-gray-700">{activity?.sessionName}</span>
                                         </label>
                                     ))}
-                                    <button
-                                        className="text-primary-600 text-sm mt-2"
-                                        onClick={() => setShowMoreActivities(!showMoreActivities)}
-                                    >
-                                        {showMoreActivities ? "Show less" : "+16 more"}
-                                    </button>
-                                </div>
+
+                                </div>}
                             </div>
                         </aside>
                     )}
@@ -309,10 +351,11 @@ const SubscriptionsPage = () => {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-gray-500 text-sm">Sort By</span>
-                                        <select className="border border-gray-300 rounded px-2 py-1 text-sm">
-                                            <option>Relevance</option>
+                                        <select className="border border-gray-300 font-bold outline-none cursor-pointer rounded px-2 py-1 w-48 text-sm"
+                                            onChange={(e) => handleFilterSortBy(e)}>
                                             <option>Price</option>
-                                            <option>Rating</option>
+                                            <option>Highest Rated</option>
+                                            <option>Distance</option>
                                         </select>
                                     </div>
                                 </div>
@@ -335,16 +378,21 @@ const SubscriptionsPage = () => {
                                             </div>
                                             <div className="p-4">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <div className="font-bold text-lg">{classItem.name}</div>
+                                                    <div className="font-bold text-lg capitalize">{classItem.name}</div>
                                                     <div className="text-right">
                                                         <span className="font-bold text-lg">${classItem.price}</span>
                                                     </div>
                                                 </div>
-                                                <div className="text-gray-700 mb-2">
-                                                    {classItem.streetName}
+                                                <div className="text-gray-700 mb-1 line-clamp-2">
+                                                    {classItem.description}
                                                 </div>
-                                                <div className="text-gray-700 mb-3">
-                                                    {classItem.startTime} - {classItem.endTime} w/ {classItem.trainer?.first_name || 'Trainer'}
+                                                <div className="text-gray-700 mb-1 flex items-center gap-2 font-bold">
+                                                    <BsCalendarDateFill />
+                                                    <span>{formatDate(classItem?.date?.[0])} - {formatDate(classItem?.date?.[1])}</span>
+                                                </div>
+
+                                                <div className="text-gray-700 mb-3 ">
+                                                    {classItem.startTime} - {classItem.endTime} w/ <span className="capitalize"> {classItem.trainer?.first_name} {" "} {classItem.trainer?.last_name}</span>
                                                 </div>
                                                 <div className="flex items-center">
                                                     <div className="flex text-yellow-400 mr-1">
@@ -372,12 +420,26 @@ const SubscriptionsPage = () => {
                             <>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {paginatedInstructors.map((inst, idx) => (
-                                        <div key={idx} className="flex items-center gap-4 bg-white rounded-xl shadow p-4">
-                                            <img src={inst.image} alt={inst.name} className="w-20 h-20 rounded-full object-cover" />
+                                        <div key={idx} className="flex items-center gap-4 bg-white rounded-xl shadow p-4 cursor-pointer" onClick={() => handleFilterByTrainer(inst._id)}>
+                                            <img
+                                                src={inst.profile_image}
+                                                alt={`${inst.first_name} ${inst.last_name}`}
+                                                className="w-20 h-20 rounded-full object-cover"
+                                            />
                                             <div>
-                                                <div className="font-bold text-lg">{inst.name}</div>
-                                                <div className="uppercase text-xs font-semibold text-gray-600">{inst.activities}</div>
-                                                <div className="text-gray-500 text-sm">{inst.location}</div>
+                                                <div className="font-bold text-lg">{inst.first_name} {inst.last_name}</div>
+                                                <div className="uppercase text-xs font-semibold text-gray-600">
+                                                    {inst.specialization}
+                                                </div>
+                                                <div className="text-gray-500 text-sm">
+                                                    {inst.city?.name}{inst.city?.name && inst.country?.name ? ', ' : ''}{inst.country?.name}
+                                                </div>
+                                                <div className="text-gray-500 text-xs mt-1">
+                                                    Experience: {inst.experienceYear} years
+                                                </div>
+                                                <div className="text-green-600 text-xs font-semibold">
+                                                    {inst.userStatus}
+                                                </div>
                                             </div>
                                         </div>
                                     ))}

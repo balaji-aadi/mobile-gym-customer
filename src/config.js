@@ -2,8 +2,8 @@ export const user_role = {
   customer: 3,
 };
 
-const localUrl = "http://localhost:5000";
-// const localUrl = "http://192.168.1.19:5009";
+// const localUrl = "http://localhost:5000";
+const localUrl = "http://192.168.1.17:5000";
 
 const isLive = false;
 

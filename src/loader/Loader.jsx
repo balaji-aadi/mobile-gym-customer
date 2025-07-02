@@ -1,16 +1,23 @@
-import React, { useContext } from "react";
 import "./loader.css";
-import LoaderContext from "./LoaderContext";
+import { useLoading } from "./LoaderContext";
 
 const Loader = () => {
-  const { isLoading } = useContext(LoaderContext);
-  if (isLoading) {
-    return (
-      <div className="loader__wrapper">
-        <span className="loader"></span>
+  const { isLoading } = useLoading();
+
+  if (!isLoading) return null;
+
+  return (
+    <div className="loader__wrapper">
+      <div className="outbox-loader">
+        {"OUTBOX".split("").map((letter, idx) => (
+          <span className="letter" key={idx}>
+            {letter}
+          </span>
+        ))}
+        <span className="ball"></span>
       </div>
-    );
-  }
+    </div>
+  );
 };
 
 export default Loader;
