@@ -1,302 +1,224 @@
 import React, { useState } from "react";
 import { Formik, Form, Field } from "formik";
 import trainer from "../Assests/trainer.jpg";
+import { useLocation, useNavigate } from "react-router-dom";
+import StripePayment from "./Payment/StripePayment";
 
-const steps = [
-  {
-    title: "Personal Information",
-    subtitle: "STEP 1 OF 5",
-    content: ({ onClose }) => (
-      <Formik
-        initialValues={{
-          phone: "",
-          name: "Seema Sahu",
-          email: "seemacse1@gmail.com",
-        }}
-        onSubmit={(_, { setSubmitting }) => {
-          setSubmitting(false);
-          onClose();
-        }}
-      >
-        {({ isSubmitting, values }) => (
-          <Form className="mt-4">
-            <div className="mb-1 text-gray-700">
-              {values.name} · {values.email}
-            </div>
-            <label className="block text-sm mb-1" htmlFor="phone">
-              Phone Number
-            </label>
-            <Field
-              id="phone"
-              name="phone"
-              placeholder="(---) --- ----"
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-black"
-            />
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-custom-dark text-white px-4 py-3 rounded font-medium tracking-widest text-xs uppercase cursor-pointer"
-            >
-              Add Number
-            </button>
-          </Form>
-        )}
-      </Formik>
-    ),
-    summary: <span>Seema Sahu · seemacse1@gmail.com</span>,
-  },
-  {
-    title: "Select a pricing option",
-    subtitle: "STEP 3 OF 5",
-    content: ({ onClose }) => {
-      const pricingOptions = [
-        {
-          label: "50% off first month of Platinum",
-          value: "platinum-50",
-          price: "-$69.50",
-        },
-        {
-          label: "Drop In: Flexible Pricing",
-          value: "dropin-flex",
-          price: "$22.00",
-          originalPrice: "$25.00",
-        },
-        {
-          label: "Drop-in",
-          value: "dropin",
-          price: "$25.00",
-        },
-        {
-          label: "New Student Special - 21 Days for $59",
-          value: "student-special",
-          price: "$59.00",
-        },
-        {
-          label: "Young Adult/Teen 10 class card",
-          value: "teen-10card",
-          price: "$120.00",
-        },
-        {
-          label: "10 Class Card",
-          value: "10card",
-          price: "$199.00",
-        },
-      ];
-      return (
-        <Formik
-          initialValues={{ pricingOption: pricingOptions[0].value }}
-          onSubmit={(_, { setSubmitting }) => {
-            setSubmitting(false);
-            onClose();
-          }}
-        >
-          {({ isSubmitting, values, setFieldValue }) => (
-            <Form className="mt-4">
-              <label className="block text-sm mb-2 font-medium">
-                PRICING OPTION
-              </label>
-              <div className="relative mb-4">
-                <Field
-                  as="select"
-                  name="pricingOption"
-                  className="w-full border border-gray-300 rounded px-3 py-3 focus:outline-none focus:ring-2 focus:ring-black appearance-none bg-white text-gray-900 font-medium"
-                  style={{ fontSize: "1rem" }}
-                >
-                  {pricingOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}{" "}
-                      {option.originalPrice
-                        ? `was ${option.originalPrice}`
-                        : ""}{" "}
-                      {option.price}
-                    </option>
-                  ))}
-                </Field>
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                  ▼
-                </span>
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-custom-dark text-white px-4 py-3 rounded font-medium tracking-widest text-xs uppercase cursor-pointer"
-              >
-                Select Option
-              </button>
-            </Form>
-          )}
-        </Formik>
-      );
-    },
-    summary: <span>Pricing option selected</span>,
-  },
-  {
-    title: "Pay with",
-    subtitle: "STEP 4 OF 5",
-    content: () => (
-      <div className="flex items-center mt-2">
-        <span className="material-icons mr-2 text-gray-500">credit_card</span>
-        <button className="border border-gray-300 rounded px-6 py-2">
-          Select
-        </button>
-      </div>
-    ),
-    summary: (
-      <span className="flex items-center">
-        <span className="material-icons mr-2 text-gray-500">credit_card</span>
-        Card
-      </span>
-    ),
-  },
-  {
-    title: "Review your order",
-    subtitle: "STEP 5 OF 5",
-    content: () => (
-      <div className="text-gray-400 text-sm">Order review goes here.</div>
-    ),
-    summary: null,
-  },
-];
-
-// Dummy summary data
-const dummySummaryData = {
-  image: trainer,
-  category: "YOGA",
-  title: "At home 45 min. Yoga",
-  time: "Friday, Jun 27 from 6:00am - 6:45am PDT",
-  instructor: {
-    name: "Adam Latham",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-  },
-  location: {
-    studio: "Twist Yoga",
-    address: [
-      "3970 Mercantile Drive",
-      "100, Lake Oswego, OR",
-      "97035",
-      "Walluga",
-    ],
-  },
-  logo: "https://i.ibb.co/0j1Yw1v/logo.png",
-  offer: "50% OFF FIRST MONTH OF PLATINUM",
-  originalPrice: "$-69.50",
-  total: "$-69.50",
-};
+// Helper to format time to 12-hour with AM/PM
+function formatTimeTo12Hour(time24) {
+  if (!time24) return "";
+  const [hourStr, minute] = time24.split(":");
+  let hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+  return `${hour}:${minute} ${ampm}`;
+}
 
 export default function CheckoutPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isPaymentPage, setisPaymentPage] = useState(false);
+
+  const classData = location.state?.classData || {};
+
   const [openStep, setOpenStep] = useState(null);
 
   return (
-    <div className="min-h-screen bg-[#fcfcfa] flex flex-col items-center py-8">
-      <div className="w-full max-w-6xl flex flex-col md:flex-row gap-8">
-        {/* Left: Steps */}
-        <div className="flex-1 bg-white rounded p-8 shadow-sm">
-          <h1 className="text-2xl font-semibold mb-8">Checkout</h1>
-          {steps.map((step, idx) => (
-            <div
-              key={idx}
-              className="mb-6 border-b last:border-b-0 border-gray-200 pb-6 last:pb-0"
-            >
-              <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-white flex flex-col items-center py-8">
+      <div className="w-full max-w-6xl flex mt-5 flex-col md:flex-row justify-center gap-8 ">
+        {/* Left: section */}
+
+        <div className="w-full md:w-1/2">
+          <img
+            src={classData?.media || trainer}
+            alt={classData?.name || "Session Image"}
+            className="w-full h-72 object-cover object-center rounded mb-4"
+          />
+          <div className="text-xs tracking-widest text-gray-400 mb-1">
+            {classData?.sessionType?.sessionName?.toUpperCase() || "SESSION"}
+          </div>
+          <div className="font-medium mb-1 capitalize ">
+            {classData?.name || "Session Title"}
+          </div>
+          <div className="text-xs text-gray-500 mb-2">
+            {/* Show start date, end date, start time, and end time in one line each, with time in 12-hour format */}
+            {classData?.date?.length > 0 && (
+              <>
                 <div>
-                  <h2
-                    className={`text-xl font-semibold ${
-                      idx === 4 ? "text-gray-400" : ""
-                    }`}
-                  >
-                    {idx + 1}. {step.title}
-                  </h2>
-                  <div className="text-xs tracking-widest text-gray-400 mt-1">
-                    {step.subtitle}
-                  </div>
-                  {step.summary && !openStep?.[idx] && (
-                    <div className="mt-2 text-sm text-gray-700">
-                      {step.summary}
-                    </div>
+                  {/* <span className="font-semibold">Date:</span>{" "} */}
+                  {new Date(classData.date[0]).toLocaleDateString("en-US", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                  {classData?.date?.[1] && (
+                    <>
+                      {" "}
+                      -{" "}
+                      {new Date(classData.date[1]).toLocaleDateString("en-US", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </>
                   )}
                 </div>
-                <button
-                  className="text-sm text-gray-500 hover:underline focus:outline-none"
-                  onClick={() =>
-                    setOpenStep((s) => ({ ...s, [idx]: !s?.[idx] }))
-                  }
-                >
-                  Edit
-                </button>
-              </div>
-              {openStep?.[idx] && (
-                <div className="mt-4">
-                  {typeof step.content === "function"
-                    ? step.content({
-                        onClose: () =>
-                          setOpenStep((s) => ({ ...s, [idx]: false })),
-                      })
-                    : step.content}
+                <div>
+                  {/* <span className="font-semibold">Time:</span>{" "} */}
+                  {formatTimeTo12Hour(classData.startTime)} -{" "}
+                  {formatTimeTo12Hour(classData.endTime)}
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
-        {/* Right: Summary */}
-        <div className="w-full md:w-96 bg-white rounded p-6 shadow-sm flex flex-col gap-6">
-          <div>
+              </>
+            )}
+          </div>
+          <div className="flex items-center gap-2 mb-2">
             <img
-              src={dummySummaryData.image}
-              alt={dummySummaryData.category}
-              className="w-full h-52 object-cover rounded mb-4"
+              src={
+                classData?.trainer?.profile_image ||
+                "https://randomuser.me/api/portraits/men/32.jpg"
+              }
+              alt="Instructor"
+              className="w-8 h-8 rounded-full"
             />
-            <div className="text-xs tracking-widest text-gray-400 mb-1">
-              {dummySummaryData.category}
-            </div>
-            <div className="font-medium mb-1">{dummySummaryData.title}</div>
-            <div className="text-xs text-gray-500 mb-2">
-              {dummySummaryData.time}
-            </div>
-            <div className="flex items-center gap-2 mb-2">
-              <img
-                src={dummySummaryData.instructor.avatar}
-                alt="Instructor"
-                className="w-8 h-8 rounded-full"
-              />
-              <div>
-                <div className="text-[10px] uppercase text-gray-400">
-                  Instructor
-                </div>
-                <div className="text-xs">
-                  {dummySummaryData.instructor.name}
-                </div>
+            <div>
+              <div className="text-[10px] uppercase text-gray-400">
+                Instructor
               </div>
-            </div>
-            <hr className="mt-5 mb-5"></hr>
-            <div className="mt-2">
-              <div className="font-medium">
-                {dummySummaryData.location.studio}
+              <div className="text-xs">
+                {classData?.trainer?.first_name} {classData?.trainer?.last_name}
               </div>
-              <div className="text-xs text-gray-500">
-                {dummySummaryData.location.address.map((line, i) => (
-                  <React.Fragment key={i}>
-                    {line}
-                    <br />
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-            <div className="flex justify-end mt-2">
-              <img src={dummySummaryData.logo} alt="Logo" className="h-6" />
             </div>
           </div>
-          <div className="border-t border-gray-200 pt-4">
-            <div className="flex justify-between text-xs mb-2">
-              <span>{dummySummaryData.offer}</span>
-              <span className="line-through">
-                {dummySummaryData.originalPrice}
-              </span>
+          <hr className="mt-5 mb-5" />
+          {/* <div className="mt-2">
+            <div className="font-medium">
+              {classData?.streetName || "Studio"}
             </div>
+            <div className="text-xs text-gray-500">
+              {classData?.city?.name || "City"}
+            </div>
+          </div> */}
+        </div>
+
+        {/* Right: section */}
+        <div className="w-full md:w-1/2 bg-white rounded p-6 shadow-sm flex flex-col gap-6">
+          {/* Offer  sections  start*/}
+          <h3 className="ml-5  text-xl font-bold">Order summery</h3>
+          <div className="bg-[#fafbfc] rounded-lg shadow-sm p-4 border border-gray-100">
+            <div className="flex justify-between text-sm mb-2">
+              <span>Subtotal</span>
+              {/* <span className="font-medium">$178.00</span> */}
+              <span>AED {classData?.price}</span>
+            </div>
+            <div className="flex justify-between text-sm mb-2">
+              <span>Tax</span>
+              {/* <span className="font-medium">$17.80</span> */}
+              <span className="font-medium">0</span>
+            </div>
+            <div className="border-t border-gray-200 my-2"></div>
+
             <div className="flex justify-between font-medium text-lg">
               <span>Total:</span>
-              <span>{dummySummaryData.total}</span>
+              <span>AED {classData?.price}</span>
             </div>
+            <hr className="mt-3 "></hr>
           </div>
+          {/* <div className="h-2 "></div> */}
+
+          <div className="bg-[#fafbfc] rounded-lg shadow-sm p-4 mb-4 border border-gray-100">
+            <div className="flex items-center mb-2 text-sm text-gray-700">
+              <span className="material-icons text-base mr-2 text-blue-500">
+                local_offer
+              </span>
+              Have a promo code?
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter promo code"
+                className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm"
+              />
+              <button className="bg-custom-dark text-white px-5 py-2 rounded font-medium text-sm ">
+                Apply
+              </button>
+            </div>
+            {/* Pay Now Button */}
+            <button
+              className="w-full bg-custom-dark text-white py-3 rounded font-semibold text-lg  mt-4"
+              onClick={() => setisPaymentPage(true)}
+            >
+              Pay Now
+            </button>
+          </div>
+
+          {isPaymentPage && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+              <div className="bg-white rounded-lg shadow-lg max-w-md w-full mx-4 relative">
+                {/* Close (X) button */}
+                {/* <button
+                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                  onClick={() => setisPaymentPage(false)}
+                  aria-label="Close"
+                >
+                  &times;
+                </button> */}
+                <StripePayment
+                  setisPaymentPage={setisPaymentPage}
+                  isPaymentPage={isPaymentPage}
+                  classData={classData}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Location Section */}
+      <div className="mt-10 md:mt-12 w-full max-w-6xl mx-auto">
+        <h3 className="text-xl sm:text-3xl font-semibold mb-3 sm:mb-4">
+          Location
+        </h3>
+        <div className="flex flex-col gap-1 sm:gap-2 mb-3 sm:mb-4 mt-6 sm:mt-10">
+          <div className="flex items-center gap-1 sm:gap-2 text-gray-700 text-sm sm:text-base">
+            {/* Phone icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 sm:h-5 sm:w-5 inline-block"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 5a2 2 0 012-2h2.28a2 2 0 011.94 1.52l.3 1.2a2 2 0 01-.45 1.95l-1.1 1.1a16.06 16.06 0 006.36 6.36l1.1-1.1a2 2 0 011.95-.45l1.2.3A2 2 0 0121 16.72V19a2 2 0 01-2 2h-1C9.163 21 3 14.837 3 7V5z"
+              />
+            </svg>
+            {classData?.trainer?.phone_number || "(503) 729-0349"}
+          </div>
+          <div className="text-gray-800 text-sm sm:text-base">
+            {classData?.streetName ||
+              "10121 Southwest Nimbus Avenue Suite C2, Tigard, OR 97223"}
+          </div>
+          <div className="text-gray-600 text-sm sm:text-base">
+            {classData?.city?.name || "Metzger"}
+          </div>
+        </div>
+        <div className="w-full h-40 xs:h-52 sm:h-64 md:h-72 rounded-lg overflow-hidden border mt-6 sm:mt-10">
+          <iframe
+            title="Google Map"
+            src="https://www.google.com/maps?q=10121+Southwest+Nimbus+Avenue+Suite+C2,+Tigard,+OR+97223&output=embed"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          ></iframe>
         </div>
       </div>
     </div>

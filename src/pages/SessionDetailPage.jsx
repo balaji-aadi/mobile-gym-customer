@@ -46,9 +46,24 @@ export default function SessionDetailPage() {
 
   const hasMoreReviews = visibleReviews < dummyReviews.length;
 
+  // const handlePurchase = () => {
+  //   navigate("/checkout");
+  // };
+
   const handlePurchase = () => {
-    navigate("/checkout");
+    navigate("/checkout", { state: { classData } });
   };
+
+  // Helper to format time to 12-hour with AM/PM
+  function formatTimeTo12Hour(time24) {
+    if (!time24) return "";
+    const [hourStr, minute] = time24.split(":");
+    let hour = parseInt(hourStr, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return `${hour}:${minute} ${ampm}`;
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-2 sm:p-4">
@@ -70,6 +85,16 @@ export default function SessionDetailPage() {
           <h2 className="text-xl sm:text-2xl font-semibold mb-2">
             {classData?.name?.toUpperCase()}
           </h2>
+
+          {/* Session Type Name */}
+          {classData?.sessionType?.sessionName && (
+            <div className="text-sm text-gray-500 mb-2">
+              {/* Session Type:{" "} */}
+              <span className="font-semibold text-custom-dark">
+                {classData.sessionType.sessionName}
+              </span>
+            </div>
+          )}
 
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
             <img
@@ -127,13 +152,49 @@ export default function SessionDetailPage() {
                 />
               </svg>
               <p className="text-gray-700 text-xs sm:text-sm">
-                {classData?.date?.length > 0 &&
-                  new Date(classData.date[0]).toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                , {classData?.startTime} - {classData?.endTime}
+                {/* Start Date - End Date */}
+                {classData?.date?.length > 0 && (
+                  <>
+                    <span>
+                      {new Date(classData.date[0]).toLocaleDateString("en-US", {
+                        weekday: "long",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                    {classData?.date?.length > 1 && (
+                      <>
+                        {" "}
+                        -{" "}
+                        <span>
+                          {new Date(classData.date[1]).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "long",
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )}
+                        </span>
+                      </>
+                    )}
+                  </>
+                )}
+                {/* Start Time - End Time */}
+                {classData?.startTime && (
+                  <>
+                    {", "}
+                    <span>{formatTimeTo12Hour(classData.startTime)}</span>
+                  </>
+                )}
+                {classData?.endTime && (
+                  <>
+                    {" - "}
+                    <span>{formatTimeTo12Hour(classData.endTime)}</span>
+                  </>
+                )}
               </p>
             </div>
           </div>
