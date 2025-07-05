@@ -92,7 +92,7 @@ const MainPage = () => {
                 <section ref={heroRef} className="relative h-screen min-h-[600px] overflow-hidden">
                     <motion.div
                         style={{ opacity: heroOpacity }}
-                        className="fixed inset-0 z-0"
+                        className=" inset-0 z-0"
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary opacity-90"></div>
                         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2120&q=80')] bg-cover bg-center"></div>
