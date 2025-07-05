@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { Edit2, X, Save, Loader2, Mail, Phone, User, Camera } from "lucide-react";
+import { Edit2,  Save, Mail, Phone, User, Camera } from "lucide-react";
+import { AuthApi } from "../Api/Auth.api";
 
 const ProfilePage = () => {
   const user = useSelector((state) => state.auth.user);
   const [isEditing, setIsEditing] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
   const [profileImage, setProfileImage] = useState(user?.profileImage || null);
+  const [countryData, setCountryData] = useState([]);
   const [imagePreview, setImagePreview] = useState(user?.profileImage || null);
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
@@ -14,10 +16,7 @@ const ProfilePage = () => {
     email: user?.email || "",
     phone: user?.phone || "",
     address: user?.address || "",
-    city: user?.city || "",
-    zipCode: user?.zipCode || "",
     country: user?.country || "",
-    state: user?.state || "",
     birthday: {
       month: user?.birthday?.month || "",
       day: user?.birthday?.day || "",
@@ -26,13 +25,22 @@ const ProfilePage = () => {
     gender: user?.gender || "",
   });
 
-  // Sample country and state data
-  const [countries, setCountries] = useState([
-    { code: "US", name: "United States" },
-    { code: "IN", name: "India" },
-    { code: "CA", name: "Canada" },
-    // Add more countries as needed
-  ]);
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await AuthApi.country();
+        setCountryData(res.data?.data || []);
+      } catch (err) {
+        console.error("Failed to fetch countries:", err);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  const countryOptions = countryData.map((item) => ({
+    value: item?._id,
+    label: item?.name || "",
+  }));
 
   const [states, setStates] = useState({
     US: [
@@ -111,10 +119,7 @@ const ProfilePage = () => {
       email: user?.email || "",
       phone: user?.phone || "",
       address: user?.address || "",
-      city: user?.city || "",
-      zipCode: user?.zipCode || "",
       country: user?.country || "",
-      state: user?.state || "",
       birthday: {
         month: user?.birthday?.month || "",
         day: user?.birthday?.day || "",
@@ -369,61 +374,19 @@ const ProfilePage = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Zip Code</label>
-                  <input
-                    type="text"
-                    name="zipCode"
-                    value={formData.zipCode}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
                   <select
                     name="country"
                     value={formData.country}
-                    onChange={(e) => {
-                      handleChange(e);
-                      setFormData(prev => ({ ...prev, state: "" }));
-                    }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-                  >
-                    <option value="">Select Country</option>
-                    {countries.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {country.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                  <select
-                    name="state"
-                    value={formData.state}
                     onChange={handleChange}
-                    disabled={!formData.country}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all disabled:bg-gray-100"
+                    className="block w-full px-3 py-2 sm:py-3 text-xs sm:text-sm border outline-none rounded-lg "
                   >
-                    <option value="">Select State</option>
-                    {availableStates.map((state) => (
-                      <option key={state.code} value={state.code}>
-                        {state.name}
+                    <option value="">Select country</option>
+                    {countryOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
                       </option>
                     ))}
                   </select>
@@ -448,26 +411,10 @@ const ProfilePage = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-500">City</p>
-                  <p className="font-medium">{user.city || "Not specified"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Zip Code</p>
-                  <p className="font-medium">{user.zipCode || "Not specified"}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
                   <p className="text-sm text-gray-500">Country</p>
-                  <p className="font-medium">
+                  {/* <p className="font-medium">
                     {countries.find(c => c.code === user.country)?.name || "Not specified"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">State</p>
-                  <p className="font-medium">
-                    {user.country && states[user.country]?.find(s => s.code === user.state)?.name || "Not specified"}
-                  </p>
+                  </p> */}
                 </div>
               </div>
               <div>

@@ -27,6 +27,8 @@ const CheckoutForm = ({ setisPaymentPage, classData }) => {
   const { handleLoading } = useLoading();
   const navigate = useNavigate();
 
+  console.log("class data",classData)
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!stripe || !elements) {
@@ -48,13 +50,10 @@ const CheckoutForm = ({ setisPaymentPage, classData }) => {
         handleLoading(false);
         return;
       }
-
-      // Call BookingApi.createSubscription after payment success
       try {
-        // Send only the required payload as per user instruction
         const payload = { subscription: classData._id };
         const res = await BookingApi.createSubscription(payload);
-        console.log(" res data:", res?.data?.data);
+        sessionStorage.setItem("orderPlaced", "true")
         setresData(res?.data?.data?._id);
         toast.success("Payment & Subscription Successful");
         navigate(`/order-confirmation/${res?.data?.data?._id}`);
@@ -146,7 +145,7 @@ const CheckoutForm = ({ setisPaymentPage, classData }) => {
   );
 };
 
-const StripePayment = ({ setisPaymentPage, total = 0, classData }) => {
+const StripePayment = ({ setisPaymentPage, classData }) => {
   return (
     <div className="relative max-w-md mx-auto p-5 rounded-lg  ">
       {/* Close Button */}
@@ -161,7 +160,7 @@ const StripePayment = ({ setisPaymentPage, total = 0, classData }) => {
       <h2 className="text-2xl font-bold text-custom-dark mb-2">Test Payment</h2>
       <div className="flex justify-between pt-4 mb-2 border-t border-t-gray-300">
         <p>Payable Amount:</p>
-        {/* <p className="text-green-600">{total}</p> */}
+        <p className="text-green-600">AED {classData?.price}</p>
       </div>
       <p className="text-sm text-gray-600 mb-6">
         Use test card:{" "}

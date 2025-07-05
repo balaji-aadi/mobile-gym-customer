@@ -20,6 +20,8 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import Loader from "./loader/Loader.jsx";
 import StripePayment from "./pages/Payment/StripePayment.jsx";
 import OrderConfirmation from "./pages/Payment/OrderConfirmation.jsx";
+import MainPage from "./pages/MainPage.jsx";
+import { ParallaxProvider } from "react-scroll-parallax";
 import InvoicePage from "./pages/InvoicePage.jsx";
 import HistoryDetails from "./pages/HistoryDetails.jsx";
 
@@ -44,7 +46,8 @@ const router = createBrowserRouter([
     path: "/",
     element: <Layout />,
     children: [
-      { path: "/", element: <HomePage /> },
+      { path: "/explore", element: <HomePage /> },
+      { path: "/", element: <MainPage/> },
       {
         path: "profile",
         element: (
@@ -191,7 +194,9 @@ function App() {
 
       <LoaderProvider>
         <Loader />
+        <ParallaxProvider>
         <RouterProvider router={router} />
+        </ParallaxProvider>
       </LoaderProvider>
     </>
   );

@@ -7,10 +7,10 @@ import gola from "../../public/gola.jpg";
 import InputField from "../components/InputField.jsx";
 import { loginUser } from "../store/authThunks.js";
 import { useDispatch } from "react-redux";
-import { IoLogoFacebook } from "react-icons/io5";
-import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 import { useLoading } from "../loader/LoaderContext.jsx";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode} from "jwt-decode";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -238,7 +238,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={formik.isSubmitting}
-              className="w-full bg-custom-coral hover:bg-primary-700 disabled:bg-primary-400 text-white py-2 sm:py-3 px-4 rounded-lg text-sm sm:text-base font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              className="w-full bg-custom-coral hover:bg-primary-700 disabled:bg-primary-400 text-white py-2 sm:py-3 px-4 rounded-lg text-sm sm:text-base font-medium transition-colors outline-none "
             >
               {formik.isSubmitting ? (
                 <div className="flex items-center justify-center space-x-2">
@@ -261,22 +261,25 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div className="flex gap-3 sm:gap-4 mt-3 sm:mt-4">
-              <button
-                type="button"
-                className="flex-1 bg-white border border-gray-300 hover:border-gray-400 text-gray-700 py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 flex items-center justify-center space-x-2 shadow-sm"
-              >
-                <FcGoogle size={18} className="sm:w-5 sm:h-5" />
-                <span>Google</span>
-              </button>
-              <button
-                type="button"
-                className="flex-1 bg-[#4267B2] text-white py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 flex items-center justify-center space-x-2 shadow-sm"
-              >
-                <IoLogoFacebook size={18} className="text-white sm:w-5 sm:h-5" />
-                <span>Facebook</span>
-              </button>
+            <div className="flex gap-3 sm:gap-4 mt-3 sm:mt-4 items-center justify-center">
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  const decoded = jwtDecode(credentialResponse.credential);
+                  console.log("Decoded Google User Info:", decoded);
+
+                  // Optional: Send decoded info to backend to register/login
+                  // dispatch(googleLogin(decoded)).then(...)
+
+                  localStorage.setItem("token", credentialResponse.credential);
+                  toast.success("Signed in with Google");
+                  navigate("/");
+                }}
+                onError={() => {
+                  toast.error("Google Sign In Failed");
+                }}
+              />
             </div>
+
           </form>
 
           <div className="text-center mt-6 sm:mt-8">

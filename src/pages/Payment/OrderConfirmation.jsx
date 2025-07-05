@@ -1,10 +1,8 @@
-// import { motion } from "framer-motion";
 import { motion } from "framer-motion";
 import Confetti from "react-confetti";
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaDumbbell, FaHeartbeat, FaRunning } from "react-icons/fa";
-import { FiHome, FiShoppingBag } from "react-icons/fi";
 import moment from "moment";
 import { BookingApi } from "../../Api/Booking.api";
 import { useLoading } from "../../loader/LoaderContext";
@@ -52,11 +50,11 @@ export default function OrderConfirmation() {
     navigate(path);
   };
 
-  // useEffect(() => {
-  //   if (orderPlaced !== "true") {
-  //     navigate("/");
-  //   }
-  // }, [orderPlaced, navigate]);
+  useEffect(() => {
+    if (orderPlaced !== "true") {
+      navigate("/");
+    }
+  }, [orderPlaced, navigate]);
 
   const floatVariants = {
     float: {

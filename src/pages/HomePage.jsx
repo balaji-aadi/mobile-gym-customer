@@ -361,26 +361,35 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+      {/* Explore OutBox Section */}
+      {category?.length > 0 && <section className="bg-second py-8 md:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
-            {[
-              { number: "1000+", label: "Happy Members" },
-              { number: "50+", label: "Expert Trainers" },
-              { number: "100+", label: "Daily Sessions" },
-              { number: "15+", label: "Locations" },
-            ].map((stat, index) => (
-              <div key={index} className="animate-scale-in">
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                  {stat.number}
+          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-10 text-fifth">
+            Explore OutBox
+          </h2>
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 flex-wrap">
+            {category.map((cat) => (
+              <Link
+                key={cat._id}
+                to={`/subscriptions/${cat._id}?name=cat`}
+                className="relative cursor-pointer hover:scale-105 transition-transform duration-300 flex-1 rounded-2xl overflow-hidden shadow-lg min-w-[300px] max-w-[400px]"
+              >
+                <img
+                  src={cat.image}
+                  alt={cat.alt}
+                  className="w-full h-56 object-cover"
+                />
+                <div className="absolute bottom-0 left-0 p-6 z-10">
+                  <span className="text-white text-2xl font-bold drop-shadow-lg">
+                    {cat.cName}
+                  </span>
                 </div>
-                <div className="text-gray-600">{stat.label}</div>
-              </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              </Link>
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* My Sessions */}
       {user && traing?.length > 0 && (
@@ -571,7 +580,7 @@ const HomePage = () => {
       )}
 
       {/* Location near you Sessions */}
-      <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+      {nearMeLocation?.length> 0 && <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
             <h2 className="text-xl md:text-3xl font-bold capitalize text-fifth">
@@ -590,7 +599,7 @@ const HomePage = () => {
             itemClass="mr-4 md:mr-6"
           />
         </div>
-      </section>
+      </section>}
 
       {/* CTA Section */}
       <section

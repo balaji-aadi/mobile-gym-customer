@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Calendar, Home, MapPin, User, Menu, X } from "lucide-react";
-import logo from "../../public/logo/logo.png";
+import { Calendar, MapPin, User, Menu, X } from "lucide-react";
+import logo from "../../public/Logos/main-logo-dark-01.png"
 import { useSelector, useDispatch } from "react-redux";
 import ConfirmationModal from "./ConfirmationModal";
 import { AuthApi } from "../Api/Auth.api";
@@ -22,7 +22,7 @@ const NavBar = () => {
   const navItems = [
     // { path: "/", label: "Home", icon: Home },
     { path: "/subscriptions", label: "DEALS", icon: Calendar },
-    // { path: "/locations", label: "Location", icon: MapPin },
+    { path: "/explore", label: "EXPLORE", icon: MapPin },
   ];
 
   const userMenuItems = [
@@ -75,7 +75,7 @@ const NavBar = () => {
             <img
               src={logo}
               alt="Logo"
-              className="h-12 sm:h-12 object-contain transition-transform hover:scale-105"
+              className="h-11 sm:h-11 object-contain transition-transform hover:scale-105"
             />
           </Link>
 

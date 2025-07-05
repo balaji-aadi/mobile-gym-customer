@@ -6,8 +6,6 @@ import * as Yup from "yup";
 import gym_register from "../../public/gym_register.jpg";
 import { AuthApi } from "../Api/Auth.api.js";
 import InputField from "../components/InputField.jsx";
-import { FcGoogle } from "react-icons/fc";
-import { IoLogoFacebook } from "react-icons/io5";
 import { useLoading } from "../loader/LoaderContext";
 import toast from "react-hot-toast";
 
@@ -464,7 +462,7 @@ const RegisterPage = () => {
                       >
                         {isLoading ? (
                           <div className="flex items-center justify-center space-x-2">
-                            <div className="animate-spin rounded-full h-4 w-4 border outline-none-b-2 border outline-none-white"></div>
+                            <div className="animate-spin rounded-full h-4 w-4 border outline-none-b-2 outline-none-white"></div>
                             <span>Creating account...</span>
                           </div>
                         ) : (
@@ -476,40 +474,6 @@ const RegisterPage = () => {
                 </Form>
               )}
             </Formik>
-
-            <div className="mt-6 sm:mt-8">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border outline-none-t border outline-none-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-xs sm:text-sm">
-                  <span className="px-2 sm:px-4 bg-white text-gray-500">
-                    Or sign up with
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4 sm:mt-6 grid grid-cols-2 gap-3 sm:gap-4">
-                <button
-                  type="button"
-                  className="w-full flex justify-center py-2 sm:py-3 px-4 border outline-none border outline-none-gray-300 rounded-lg shadow-sm bg-white text-xs sm:text-sm font-medium text-gray-700"
-                >
-                  <div className="flex items-center">
-                    <FcGoogle size={16} className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                    <span>Google</span>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  className="w-full flex justify-center py-2 sm:py-3 px-4 border outline-none border outline-none-transparent rounded-lg shadow-sm bg-[#4267B2] text-xs sm:text-sm font-medium text-white"
-                >
-                  <div className="flex items-center">
-                    <IoLogoFacebook size={16} className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-white" />
-                    <span>Facebook</span>
-                  </div>
-                </button>
-              </div>
-            </div>
           </div>
 
           <div className="text-center mt-4 sm:mt-6">
