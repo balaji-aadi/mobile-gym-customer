@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Calendar,
   Clock,
@@ -11,124 +11,59 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { format } from "date-fns";
+import { useLoading } from "../loader/LoaderContext";
+import { BookingApi } from "../Api/Booking.api";
+import { useNavigate } from "react-router-dom";
 
 const HistoryPage = () => {
   const [activeTab, setActiveTab] = useState("sessions");
-  const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [sessionHistory, setsessionHistory] = useState([]);
+  const [search, Setsearch] = useState("");
+  const [subscriptionHistory] = useState([]);
+  const [expired, setExpired] = useState([]);
+  const { handleLoading } = useLoading();
+  const navigate = useNavigate();
+  const [inputValue, setInputValue] = useState("");
 
-  const sessionHistory = [
-    {
-      id: 1,
-      title: "Morning HIIT Blast",
-      trainer: "Sarah Johnson",
-      date: "2024-01-18",
-      time: "7:00 AM",
-      duration: "45 min",
-      location: "Central Park",
-      status: "completed",
-      rating: 5,
-      feedback: "Amazing session! Really pushed me to my limits.",
-      price: 25,
-      image:
-        "https://images.pexels.com/photos/416778/pexels-photo-416778.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-    {
-      id: 2,
-      title: "Strength & Power",
-      trainer: "Mike Chen",
-      date: "2024-01-16",
-      time: "6:00 PM",
-      duration: "60 min",
-      location: "Downtown Gym",
-      status: "completed",
-      rating: 4,
-      feedback: "Great workout, learned proper form for deadlifts.",
-      price: 35,
-      image:
-        "https://images.pexels.com/photos/1552108/pexels-photo-1552108.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-    {
-      id: 3,
-      title: "Sunset Yoga Flow",
-      trainer: "Emma Davis",
-      date: "2024-01-14",
-      time: "7:30 PM",
-      duration: "50 min",
-      location: "Riverside Park",
-      status: "completed",
-      rating: 5,
-      feedback: "So relaxing and peaceful. Perfect end to the day.",
-      price: 20,
-      image:
-        "https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-    {
-      id: 4,
-      title: "Cardio Dance Party",
-      trainer: "Maria Santos",
-      date: "2024-01-12",
-      time: "6:30 PM",
-      duration: "45 min",
-      location: "Studio Downtown",
-      status: "cancelled",
-      price: 22,
-      image:
-        "https://images.pexels.com/photos/3757376/pexels-photo-3757376.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-    {
-      id: 5,
-      title: "Functional CrossTraining",
-      trainer: "Alex Rodriguez",
-      date: "2024-01-20",
-      time: "8:00 AM",
-      duration: "55 min",
-      location: "Sports Complex",
-      status: "upcoming",
-      price: 30,
-      image:
-        "https://images.pexels.com/photos/1431282/pexels-photo-1431282.jpeg?auto=compress&cs=tinysrgb&w=400",
-    },
-  ];
+  const getAllSubscription = async () => {
+    handleLoading(true);
+    try {
+      const res = await BookingApi.getBookingHistory();
+      console.log("book ka history hai", res?.data?.data);
+      setsessionHistory(res?.data?.data);
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      handleLoading(false);
+    }
+  };
 
-  const bookingHistory = [
-    {
-      id: 1,
-      sessionTitle: "Morning HIIT Blast",
-      bookingDate: "2024-01-15",
-      sessionDate: "2024-01-18",
-      status: "completed",
-      amount: 25,
-      bookingId: "BK001",
-    },
-    {
-      id: 2,
-      sessionTitle: "Strength & Power",
-      bookingDate: "2024-01-12",
-      sessionDate: "2024-01-16",
-      status: "completed",
-      amount: 35,
-      bookingId: "BK002",
-    },
-    {
-      id: 3,
-      sessionTitle: "Functional CrossTraining",
-      bookingDate: "2024-01-18",
-      sessionDate: "2024-01-20",
-      status: "confirmed",
-      amount: 30,
-      bookingId: "BK003",
-    },
-  ];
+  const getAllSearch = async (term) => {
+    handleLoading(true);
+    try {
+      const res = await BookingApi.getSearchHistory(term);
+      console.log("SEARCH API RESPONSE", res?.data?.data);
+      setsessionHistory(res?.data?.data || []);
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      handleLoading(false);
+    }
+  };
 
-  const filteredSessions = sessionHistory.filter((session) => {
-    const matchesStatus =
-      filterStatus === "all" || session.status === filterStatus;
-    const matchesSearch =
-      session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      session.trainer.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  const getAllExpired = async () => {
+    handleLoading(true);
+    try {
+      const res = await BookingApi.getExpiredSubscription();
+      console.log("EXPIRED SUBSCRIPTIONS RESPONSE", res?.data?.data);
+      setExpired(res?.data?.data || []);
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      handleLoading(false);
+    }
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -156,38 +91,53 @@ const HistoryPage = () => {
     ));
   };
 
+  useEffect(() => {
+    getAllSubscription();
+    getAllExpired();
+  }, []);
+
+  useEffect(() => {
+    if (searchTerm.trim() !== "") {
+      getAllSearch(searchTerm);
+    } else {
+      getAllSubscription();
+    }
+  }, [searchTerm]);
+
   return (
     <>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            History & Bookings
+            Subscriptions Bookings
           </h1>
-          <p className="text-gray-600">
-            View your past sessions, bookings, and activity history
-          </p>
+          <p className="text-gray-600">View your sessions, bookings</p>
         </div>
 
         {/* Tabs */}
         <div className="border-b border-gray-200 mb-8">
           <nav className="-mb-px flex space-x-8">
-            {[
-              { id: "sessions", label: "Session History" },
-              { id: "bookings", label: "Booking History" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+            <button
+              onClick={() => setActiveTab("sessions")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "sessions"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Subscription
+            </button>
+            <button
+              onClick={() => setActiveTab("subscriptions")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "subscriptions"
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Expired
+            </button>
           </nav>
         </div>
 
@@ -203,221 +153,300 @@ const HistoryPage = () => {
                     <input
                       type="text"
                       placeholder="Search sessions or trainers..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          setSearchTerm(inputValue);
+                        }
+                      }}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                   </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Filter className="h-5 w-5 text-gray-400" />
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="completed">Completed</option>
-                    <option value="upcoming">Upcoming</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
                 </div>
               </div>
             </div>
 
             {/* Sessions List */}
             <div className="space-y-4">
-              {filteredSessions.map((session) => (
-                <div
-                  key={session.id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                >
-                  <div className="md:flex">
-                    <div className="md:w-48">
-                      <img
-                        src={session.image}
-                        alt={session.title}
-                        className="w-full h-48 md:h-full object-cover"
-                      />
-                    </div>
-
-                    <div className="flex-1 p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-1">
-                            {session.title}
-                          </h3>
-                          <p className="text-gray-600 flex items-center space-x-1">
-                            <User className="h-4 w-4" />
-                            <span>with {session.trainer}</span>
-                          </p>
+              {sessionHistory && sessionHistory.length > 0 ? (
+                sessionHistory.map((session) => {
+                  const subscription = session.subscription || session;
+                  const trainer = subscription.trainer || {};
+                  const category = subscription.categoryId || {};
+                  const sessionType = subscription.sessionType || {};
+                  const address = subscription.Address || {};
+                  const city = (address.city && address.city.name) || "";
+                  const country =
+                    (address.country && address.country.name) || "";
+                  const street = address.streetName || "";
+                  const landmark = address.landmark || "";
+                  const fullAddress = [street, landmark, city, country]
+                    .filter(Boolean)
+                    .join(", ");
+                  const price =
+                    subscription.price !== undefined &&
+                    subscription.price !== null
+                      ? subscription.price
+                      : "-";
+                  const image =
+                    subscription.media ||
+                    "https://via.placeholder.com/150x150?text=No+Image";
+                  const altText = subscription.name || "Session Image";
+                  const dateArr = Array.isArray(subscription.date)
+                    ? subscription.date
+                    : [];
+                  const dateStr =
+                    dateArr.length > 0
+                      ? format(new Date(dateArr[0]), "MMM dd, yyyy")
+                      : "N/A";
+                  const startTime = subscription.startTime || "N/A";
+                  const endTime = subscription.endTime || "N/A";
+                  const sessionName = subscription.name || "Untitled Session";
+                  const categoryName = category.cName || "";
+                  const sessionTypeName = sessionType.sessionName || "";
+                  const trainerName =
+                    `${trainer.first_name || ""}${
+                      trainer.last_name || ""
+                    }`.trim() || "Unknown Trainer";
+                  return (
+                    <div
+                      key={session._id || Math.random()}
+                      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => {
+                        navigate(
+                          `/history-details/${session._id || session.id}`,
+                          { state: { session } }
+                        );
+                      }}
+                    >
+                      <div className="md:flex">
+                        <div className="md:w-48">
+                          <img
+                            src={image}
+                            alt={altText}
+                            className="w-full h-48 md:h-full object-cover"
+                          />
                         </div>
-                        <div className="flex items-center space-x-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              session.status
-                            )}`}
-                          >
-                            {session.status.charAt(0).toUpperCase() +
-                              session.status.slice(1)}
-                          </span>
-                          <span className="text-lg font-bold text-primary-600">
-                            ${session.price}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm text-gray-600">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="h-4 w-4" />
-                          <span>
-                            {format(new Date(session.date), "MMM dd, yyyy")}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Clock className="h-4 w-4" />
-                          <span>
-                            {session.time} ({session.duration})
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <MapPin className="h-4 w-4" />
-                          <span>{session.location}</span>
-                        </div>
-                        {session.rating && (
-                          <div className="flex items-center space-x-1">
-                            <div className="flex space-x-1">
-                              {renderStars(session.rating)}
+                        <div className="flex-1 p-6">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900 mb-1">
+                                {sessionName}
+                              </h3>
+                              <div className="flex flex-wrap gap-2 mb-1">
+                                {categoryName && (
+                                  <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs font-medium">
+                                    {categoryName}
+                                  </span>
+                                )}
+                                {sessionTypeName && (
+                                  <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-xs font-medium">
+                                    {sessionTypeName}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-gray-600 flex items-center space-x-1">
+                                <User className="h-4 w-4" />
+                                <span>with {trainerName}</span>
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                              <span className="text-lg font-bold text-primary-600">
+                                AED {price}
+                              </span>
                             </div>
                           </div>
-                        )}
-                      </div>
-
-                      {session.feedback && session.status === "completed" && (
-                        <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                          <p className="text-sm text-gray-700 italic">
-                            "{session.feedback}"
-                          </p>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm text-gray-600">
+                            <div className="flex items-center space-x-1">
+                              <Calendar className="h-4 w-4" />
+                              <span>{dateStr}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Clock className="h-4 w-4" />
+                              <span>
+                                {startTime} - {endTime}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1 col-span-2">
+                              <MapPin className="h-4 w-4" />
+                              <span>{fullAddress || "N/A"}</span>
+                            </div>
+                          </div>
+                          <div className="mt-4 flex justify-end">
+                            <button
+                              className="flex items-center gap-2 px-4 py-2 bg-custom-dark text-white rounded-lg shadow hover:bg-primary-700 transition text-sm font-medium"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(
+                                  `/invoice/${session._id || session.id}`
+                                );
+                              }}
+                            >
+                              View Invoice
+                            </button>
+                          </div>
                         </div>
-                      )}
-
-                      <div className="flex flex-wrap gap-2">
-                        {session.status === "completed" && (
-                          <>
-                            <button className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 text-sm">
-                              <Download className="h-4 w-4" />
-                              <span>Download Receipt</span>
-                            </button>
-                            <button className="flex items-center space-x-1 text-secondary-600 hover:text-secondary-700 text-sm">
-                              <MessageCircle className="h-4 w-4" />
-                              <span>Contact Trainer</span>
-                            </button>
-                          </>
-                        )}
-                        {session.status === "upcoming" && (
-                          <button className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm">
-                            Cancel Booking
-                          </button>
-                        )}
                       </div>
                     </div>
-                  </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-12">
+                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-700 mb-2">
+                    No sessions found
+                  </h3>
+                  <p className="text-gray-500">
+                    Try adjusting your search or filter criteria
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
-
-            {filteredSessions.length === 0 && (
-              <div className="text-center py-12">
-                <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-700 mb-2">
-                  No sessions found
-                </h3>
-                <p className="text-gray-500">
-                  Try adjusting your search or filter criteria
-                </p>
-              </div>
-            )}
           </div>
         )}
 
-        {/* Booking History Tab */}
-        {activeTab === "bookings" && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Booking History
-              </h2>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Booking ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Session
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Booking Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Session Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {bookingHistory.map((booking) => (
-                    <tr key={booking.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {booking.bookingId}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {booking.sessionTitle}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {format(new Date(booking.bookingDate), "MMM dd, yyyy")}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {format(new Date(booking.sessionDate), "MMM dd, yyyy")}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                            booking.status
-                          )}`}
-                        >
-                          {booking.status.charAt(0).toUpperCase() +
-                            booking.status.slice(1)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ${booking.amount}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <button className="text-primary-600 hover:text-primary-700 mr-4">
-                          View Details
-                        </button>
-                        {booking.status === "completed" && (
-                          <button className="text-secondary-600 hover:text-secondary-700">
-                            Download Receipt
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Subscription History Tab */}
+        {activeTab === "subscriptions" && (
+          <div className="space-y-6">
+            {/* Expired Sessions List */}
+            <div className="space-y-4">
+              {expired && expired.length > 0 ? (
+                expired.map((session) => {
+                  const subscription = session.subscription || session;
+                  const trainer = subscription.trainer || {};
+                  const category = subscription.categoryId || {};
+                  const sessionType = subscription.sessionType || {};
+                  const address = subscription.Address || {};
+                  const city = (address.city && address.city.name) || "";
+                  const country =
+                    (address.country && address.country.name) || "";
+                  const street = address.streetName || "";
+                  const landmark = address.landmark || "";
+                  const fullAddress = [street, landmark, city, country]
+                    .filter(Boolean)
+                    .join(", ");
+                  const price =
+                    subscription.price !== undefined &&
+                    subscription.price !== null
+                      ? subscription.price
+                      : "-";
+                  const image =
+                    subscription.media ||
+                    "https://via.placeholder.com/150x150?text=No+Image";
+                  const altText = subscription.name || "Session Image";
+                  const dateArr = Array.isArray(subscription.date)
+                    ? subscription.date
+                    : [];
+                  const dateStr =
+                    dateArr.length > 0
+                      ? format(new Date(dateArr[0]), "MMM dd, yyyy")
+                      : "N/A";
+                  const startTime = subscription.startTime || "N/A";
+                  const endTime = subscription.endTime || "N/A";
+                  const sessionName = subscription.name || "Untitled Session";
+                  const categoryName = category.cName || "";
+                  const sessionTypeName = sessionType.sessionName || "";
+                  const trainerName =
+                    `${trainer.first_name || ""}${
+                      trainer.last_name || ""
+                    }`.trim() || "Unknown Trainer";
+                  return (
+                    <div
+                      key={session._id || Math.random()}
+                      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer opacity-75"
+                      onClick={() => {
+                        navigate(
+                          `/history-details/${session._id || session.id}`,
+                          { state: { session } }
+                        );
+                      }}
+                    >
+                      <div className="md:flex">
+                        <div className="md:w-48">
+                          <img
+                            src={image}
+                            alt={altText}
+                            className="w-full h-48 md:h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 p-6">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900 mb-1">
+                                {sessionName}
+                              </h3>
+                              <div className="flex flex-wrap gap-2 mb-1">
+                                {categoryName && (
+                                  <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs font-medium">
+                                    {categoryName}
+                                  </span>
+                                )}
+                                {sessionTypeName && (
+                                  <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-xs font-medium">
+                                    {sessionTypeName}
+                                  </span>
+                                )}
+                                <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded text-xs font-medium">
+                                  Expired
+                                </span>
+                              </div>
+                              <p className="text-gray-600 flex items-center space-x-1">
+                                <User className="h-4 w-4" />
+                                <span>with {trainerName}</span>
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                              <span className="text-lg font-bold text-gray-500 line-through">
+                                AED {price}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm text-gray-600">
+                            <div className="flex items-center space-x-1">
+                              <Calendar className="h-4 w-4" />
+                              <span>{dateStr}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Clock className="h-4 w-4" />
+                              <span>
+                                {startTime} - {endTime}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1 col-span-2">
+                              <MapPin className="h-4 w-4" />
+                              <span>{fullAddress || "N/A"}</span>
+                            </div>
+                          </div>
+                          <div className="mt-4 flex justify-end">
+                            <button
+                              className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition text-sm font-medium"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(
+                                  `/invoice/${session._id || session.id}`
+                                );
+                              }}
+                            >
+                              View Invoice
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-12">
+                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-700 mb-2">
+                    No expired subscriptions found
+                  </h3>
+                  <p className="text-gray-500">
+                    You don't have any expired subscriptions yet
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}

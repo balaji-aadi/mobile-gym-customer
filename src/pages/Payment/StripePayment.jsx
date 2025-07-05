@@ -161,7 +161,7 @@ const StripePayment = ({ setisPaymentPage, total = 0, classData }) => {
       <h2 className="text-2xl font-bold text-custom-dark mb-2">Test Payment</h2>
       <div className="flex justify-between pt-4 mb-2 border-t border-t-gray-300">
         <p>Payable Amount:</p>
-        <p className="text-green-600">{total}</p>
+        {/* <p className="text-green-600">{total}</p> */}
       </div>
       <p className="text-sm text-gray-600 mb-6">
         Use test card:{" "}

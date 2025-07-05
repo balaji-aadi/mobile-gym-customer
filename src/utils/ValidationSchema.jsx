@@ -64,3 +64,26 @@ export const bookingValidationSchema = Yup.object().shape({
   //   .min(1, "At least one pet type is required"),
   petSize: Yup.string().required("Pet size is required"),
 });
+
+// Review validation schemas
+export const subscriptionReviewSchema = Yup.object().shape({
+  rating: Yup.number()
+    .min(1, "Rating must be at least 1")
+    .max(5, "Rating cannot exceed 5")
+    .required("Rating is required"),
+  review: Yup.string()
+    .min(10, "Review must be at least 10 characters")
+    .max(500, "Review cannot exceed 500 characters")
+    .required("Review is required"),
+});
+
+export const trainerReviewSchema = Yup.object().shape({
+  rating: Yup.number()
+    .min(1, "Rating must be at least 1")
+    .max(5, "Rating cannot exceed 5")
+    .required("Rating is required"),
+  review: Yup.string()
+    .min(10, "Review must be at least 10 characters")
+    .max(500, "Review cannot exceed 500 characters")
+    .required("Review is required"),
+});

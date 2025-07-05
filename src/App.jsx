@@ -20,6 +20,8 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import Loader from "./loader/Loader.jsx";
 import StripePayment from "./pages/Payment/StripePayment.jsx";
 import OrderConfirmation from "./pages/Payment/OrderConfirmation.jsx";
+import InvoicePage from "./pages/InvoicePage.jsx";
+import HistoryDetails from "./pages/HistoryDetails.jsx";
 
 const router = createBrowserRouter([
   {
@@ -153,6 +155,23 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <OrderConfirmation />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "invoice/:id",
+        element: (
+          <ProtectedRoute>
+            <InvoicePage />
+          </ProtectedRoute>
+        ),
+      },
+
+      {
+        path: "history-details/:id",
+        element: (
+          <ProtectedRoute>
+            <HistoryDetails />
           </ProtectedRoute>
         ),
       },

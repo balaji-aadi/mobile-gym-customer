@@ -10,10 +10,10 @@ import { useSelector } from "react-redux";
 import { CategoryApi } from "../Api/Category.api";
 import { useLoading } from "../loader/LoaderContext";
 import { FilterApi } from "../Api/Filteration.api";
+import { BookingApi } from "../Api/Booking.api";
 
 const HomePage = () => {
   const user = useSelector((state) => state.auth.user);
-
 
   const [location, setLocation] = useState("Select location");
   const [locationDropdown, setLocationDropdown] = useState(false);
@@ -23,9 +23,10 @@ const HomePage = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [category, setCategory] = useState([]);
   const [sessionData, setSessions] = useState([]);
-  const [subscription, setSubscription] = useState([])
-  const [nearMeLocation, setNearMeLocation] = useState([])
+  const [subscription, setSubscription] = useState([]);
+  const [nearMeLocation, setNearMeLocation] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [traing, setTraing] = useState([]);
   const [recentSearches, setRecentSearches] = useState(() => {
     const saved = localStorage.getItem("recentSearches");
     return saved ? JSON.parse(saved) : [];
@@ -51,7 +52,7 @@ const HomePage = () => {
     handleLoading(true);
     try {
       const res = await CategoryApi.getAllSubscription();
-      console.log(res.data?.data)
+      console.log(res.data?.data);
       setSubscription(res?.data?.data);
     } catch (error) {
       console.log("Error", error);
@@ -61,12 +62,12 @@ const HomePage = () => {
   };
 
   const getNearByLocation = async () => {
-    const lat = localStorage.getItem("latitude")
-    const lang = localStorage.getItem("longitude")
+    const lat = localStorage.getItem("latitude");
+    const lang = localStorage.getItem("longitude");
     const payload = {
-      coordinates : [lang, lat],
-      miles : 25
-    }
+      coordinates: [lang, lat],
+      miles: 25,
+    };
     handleLoading(true);
     try {
       const res = await FilterApi.filterByDistance(payload);
@@ -90,16 +91,33 @@ const HomePage = () => {
     }
   };
 
+  const getAllTraining = async () => {
+    handleLoading(true);
+    try {
+      const res = await BookingApi.getBookingHistory();
+      console.log("traing ka data hai", res?.data?.data);
+      setTraing(res?.data?.data);
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      handleLoading(false);
+    }
+  };
+
   useEffect(() => {
     getAllCategory();
     getAllSessions();
     getAllSubscription();
     getNearByLocation();
+    getAllTraining();
   }, []);
 
   const handleSearchSubmit = (term) => {
     if (!term.trim()) return;
-    let updated = [term, ...recentSearches.filter(s => s !== term)].slice(0, 5);
+    let updated = [term, ...recentSearches.filter((s) => s !== term)].slice(
+      0,
+      5
+    );
     setRecentSearches(updated);
     localStorage.setItem("recentSearches", JSON.stringify(updated));
     setShowRecent(false);
@@ -204,7 +222,8 @@ const HomePage = () => {
           </h1>
           {/* Subheading */}
           <p className="text-base sm:text-lg md:text-xl mb-6 md:mb-8 max-w-xl md:max-w-2xl mx-auto text-center animate-slide-up text-[#FCEEE5]">
-            Your next workout, wellness class, or live session is just a click away
+            Your next workout, wellness class, or live session is just a click
+            away
           </p>
           {/* Search Bar with Location - Side by Side */}
           <div className="w-full max-w-lg sm:max-w-3xl mx-auto mb-6 md:mb-8 animate-slide-up flex flex-col sm:flex-row gap-2 bg-white rounded-lg shadow-lg">
@@ -227,10 +246,10 @@ const HomePage = () => {
               <input
                 type="text"
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 onFocus={() => setShowRecent(true)}
                 onBlur={() => setTimeout(() => setShowRecent(false), 200)}
-                onKeyDown={e => {
+                onKeyDown={(e) => {
                   if (e.key === "Enter") handleSearchSubmit(searchTerm);
                 }}
                 placeholder="Search for anything"
@@ -238,7 +257,9 @@ const HomePage = () => {
               />
               {showRecent && recentSearches.length > 0 && (
                 <div className="absolute left-0 top-full mt-2 w-full bg-white shadow-lg border z-20">
-                  <div className="px-4 py-2 text-xs font-semibold text-gray-500">Recent Searches</div>
+                  <div className="px-4 py-2 text-xs font-semibold text-gray-500">
+                    Recent Searches
+                  </div>
                   {recentSearches.map((item, idx) => (
                     <div
                       key={idx}
@@ -309,7 +330,8 @@ const HomePage = () => {
                 </div>
               )}
             </div>
-            <button className="bg-primary hover:bg-primary-700 text-white px-4 md:px-6 flex items-center justify-center min-h-[48px]"
+            <button
+              className="bg-primary hover:bg-primary-700 text-white px-4 md:px-6 flex items-center justify-center min-h-[48px]"
               onClick={() => handleSearchSubmit(searchTerm)}
               type="button"
             >
@@ -361,132 +383,192 @@ const HomePage = () => {
       </section>
 
       {/* My Sessions */}
-      {user && (
+      {user && traing?.length > 0 && (
         <section className="bg-second pb-10 md:pb-20 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <div className="text-left mb-8 md:mb-12">
-              <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize text-fifth">
+            <div className="text-left  mb-8 md:mb-12">
+              <h2 className="text-xl md:text-3xl font-bold  mb-6 md:mb-8 capitalize text-fifth">
                 My Training Logs
               </h2>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {sessions.map((session, index) => (
-                <Link
-                  key={index}
-                  to={`/my-session/${index}`}
-                  className="bg-white rounded-xl shadow-sm overflow-hidden"
-                >
-                  <img
-                    src={session.image}
-                    alt={session.title}
-                    className="h-48 w-full object-cover"
-                  />
-                  <div className="p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-semibold">{session.title}</h3>
-                      <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
-                        {session.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-500 mb-4">
-                      with {session.trainer}
-                    </p>
-                    <div className="flex justify-between text-sm text-gray-600 flex-wrap gap-2">
-                      <span>{session.time}</span>
-                      <span className="flex items-center gap-1">
-                        <IoLocationOutline className="text-lg" />
-                        {session.location}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <FaStar className="text-yellow-400" />
-                        {session.rating}
-                      </span>
+            <HorizontalScroll
+              items={traing}
+              renderItem={(item, idx) => {
+                const sub = item.subscription || {};
+                const address = sub.Address || {};
+                const country = address.country?.name || "";
+                const city = address.city?.name || "";
+                const landmark = address.landmark || "";
+                const street = address.streetName || "";
+                const trainer = sub.trainer || {};
+                const sessionType = sub.sessionType || {};
+                const category = sub.categoryId || {};
+                const dates = Array.isArray(sub.date) ? sub.date : [];
+                return (
+                  <div
+                    key={item._id || idx}
+                    className="bg-white rounded-xl shadow-lg overflow-hidden w-80 flex-shrink-0 transition-all duration-200 hover:shadow-2xl border border-gray-100 flex flex-col cursor-pointer"
+                    onClick={() =>
+                      navigate(`/history-details/${item._id || item.id}`, {
+                        state: { details: item },
+                      })
+                    }
+                  >
+                    <img
+                      src={sub.media}
+                      alt={sub.name}
+                      className="w-full h-44 object-cover object-center"
+                    />
+                    <div className="p-4 flex flex-col gap-2 flex-1 justify-between">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="uppercase text-xs font-bold tracking-widest text-primary bg-primary-50 px-2 py-0.5 rounded-full">
+                          {category.cName}
+                        </span>
+                        <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                          {sessionType.sessionName}
+                        </span>
+                      </div>
+                      <h3 className="font-semibold text-lg mb-1 capitalize text-gray-800 line-clamp-1">
+                        {sub.name}
+                      </h3>
+                      <div className="text-xs text-gray-600 mb-1 flex items-center gap-4">
+                        {/* <span>with</span> */}
+                        <span className="font-semibold">
+                          {trainer.first_name} {trainer.last_name}
+                        </span>
+                        <span className="flex items-center gap-1 ml-auto">
+                          <IoLocationOutline className="mr-1" />
+                          {city ? city : "Location"}
+                        </span>
+                      </div>
+                      {/* Dates, Time, Price Row */}
+                      <div className="flex items-center text-xs text-gray-500 mb-1 gap-2">
+                        {/* Dates */}
+                        <span>
+                          {dates
+                            .map((date) =>
+                              new Date(date).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })
+                            )
+                            .join(", ")}
+                        </span>
+                        {/* Time */}
+                        <span className="ml-3">
+                          {sub.startTime} - {sub.endTime}
+                        </span>
+                        {/* Price */}
+                        <span className="ml-auto font-semibold text-primary">
+                          AED{sub.price}
+                        </span>
+                      </div>
+                      <div className="flex items-center text-xs text-gray-500 mb-1 gap-2">
+                        {item.rating && (
+                          <span className="flex items-center">
+                            <FaStar className="text-yellow-400 mr-1" />
+                            {item.rating}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </Link>
+                );
+              }}
+              itemClass="mr-4 md:mr-6"
+            />
+          </div>
+        </section>
+      )}
+
+      {/* Explore OutBox Section */}
+      {category?.length > 0 && (
+        <section className="bg-second py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-10 text-fifth">
+              Explore OutBox
+            </h2>
+            <div className="flex flex-col md:flex-row gap-6 md:gap-8 flex-wrap">
+              {category.map((cat) => (
+                <div
+                  key={cat._id}
+                  // to={`/history-details/${cat._id}?name=cat`}
+                  onClick={() => {
+                    navigate(`/history-details/${session._id || session.id}`, {
+                      state: { session },
+                    });
+                  }}
+                  className="relative cursor-pointer hover:scale-105 transition-transform duration-300 flex-1 rounded-2xl overflow-hidden shadow-lg min-w-[300px] max-w-[400px]"
+                >
+                  <img
+                    src={cat.image}
+                    alt={cat.alt}
+                    className="w-full h-56 object-cover"
+                  />
+                  <div className="absolute bottom-0 left-0 p-6 z-10">
+                    <span className="text-white text-2xl font-bold drop-shadow-lg">
+                      {cat.cName}
+                    </span>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                </div>
               ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* Explore OutBox Section */}
-      {category?.length > 0 && <section className="bg-second py-8 md:py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-10 text-fifth">
-            Explore OutBox
-          </h2>
-          <div className="flex flex-col md:flex-row gap-6 md:gap-8 flex-wrap">
-            {category.map((cat) => (
-              <Link
-                key={cat._id}
-                to={`/subscriptions/${cat._id}?name=cat`}
-                className="relative cursor-pointer hover:scale-105 transition-transform duration-300 flex-1 rounded-2xl overflow-hidden shadow-lg min-w-[300px] max-w-[400px]"
-              >
-                <img
-                  src={cat.image}
-                  alt={cat.alt}
-                  className="w-full h-56 object-cover"
-                />
-                <div className="absolute bottom-0 left-0 p-6 z-10">
-                  <span className="text-white text-2xl font-bold drop-shadow-lg">
-                    {cat.cName}
-                  </span>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>}
-
       {/* Top Sessions Section */}
-      {sessionData?.length > 0 && <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize text-fifth text-start">
-            Top fitness Sessions
-          </h2>
-          <HorizontalScroll
-            items={sessionData}
-            renderItem={(cat) => (
-              <Link
-                to={`subscriptions/${cat?._id}?name=session`}
-                className="w-40 h-40 md:w-56 md:h-56 hover:opacity-90 cursor-pointer flex items-center justify-center rounded-full bg-center bg-cover text-lg md:text-2xl font-semibold text-white shadow-md"
-                style={{
-                  backgroundImage: `url(${cat.image})`,
-                }}
-              >
-                <div className="bg-black bg-opacity-50 rounded-full px-4 py-2 text-center">
-                  {cat.sessionName}
-                </div>
-              </Link>
-            )}
-          />
-        </div>
-      </section>}
+      {sessionData?.length > 0 && (
+        <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-xl md:text-3xl font-bold mb-6 md:mb-8 capitalize text-fifth text-start">
+              Top fitness Sessions
+            </h2>
+            <HorizontalScroll
+              items={sessionData}
+              renderItem={(cat) => (
+                <Link
+                  to={`subscriptions/${cat?._id}?name=session`}
+                  className="w-40 h-40 md:w-56 md:h-56 hover:opacity-90 cursor-pointer flex items-center justify-center rounded-full bg-center bg-cover text-lg md:text-2xl font-semibold text-white shadow-md"
+                  style={{
+                    backgroundImage: `url(${cat.image})`,
+                  }}
+                >
+                  <div className="bg-black bg-opacity-50 rounded-full px-4 py-2 text-center">
+                    {cat.sessionName}
+                  </div>
+                </Link>
+              )}
+            />
+          </div>
+        </section>
+      )}
 
       {/* Featured Sessions */}
-      {subscription?.length > 0 && <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
-            <h2 className="text-xl md:text-3xl font-bold capitalize text-fifth">
-              Find your new favorite classes
-            </h2>
-            <Link
-              to={`/subscriptions`}
-              className="text-primary-600 font-semibold flex items-center gap-1"
-            >
-              Show all ({subscription?.length}) <span>&rarr;</span>
-            </Link>
+      {subscription?.length > 0 && (
+        <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-2 md:gap-0">
+              <h2 className="text-xl md:text-3xl font-bold capitalize text-fifth">
+                Find your new favorite classes
+              </h2>
+              <Link
+                to={`/subscriptions`}
+                className="text-primary-600 font-semibold flex items-center gap-1"
+              >
+                Show all ({subscription?.length}) <span>&rarr;</span>
+              </Link>
+            </div>
+            <HorizontalScroll
+              items={subscription}
+              renderItem={(session) => <SubscriptionCards {...session} />}
+              itemClass="mr-4 md:mr-6"
+            />
           </div>
-          <HorizontalScroll
-            items={subscription}
-            renderItem={(session) => <SubscriptionCards {...session} />}
-            itemClass="mr-4 md:mr-6"
-          />
-        </div>
-      </section>}
+        </section>
+      )}
 
       {/* Location near you Sessions */}
       <section className="bg-second py-10 md:py-16 px-4 sm:px-6 lg:px-8">

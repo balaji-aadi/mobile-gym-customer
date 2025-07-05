@@ -11,7 +11,7 @@ instance.interceptors.request.use(
     const token = localStorage.getItem("token");
     console.log("token", token);
     if (token !== null) {
-      config.headers["Authorization"] = `${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
@@ -22,9 +22,21 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
+    console.log(
+      "API Response:",
+      response.config.url,
+      response.status,
+      response.data
+    );
     return response;
   },
   (error) => {
+    console.error(
+      "API Error:",
+      error.config?.url,
+      error.response?.status,
+      error.response?.data
+    );
     const status = error.response?.status;
 
     if (status === 401) {
