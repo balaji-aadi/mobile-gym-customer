@@ -10,9 +10,28 @@ import { CategoryApi } from '../Api/Category.api';
 import { useLoading } from '../loader/LoaderContext';
 import { Link } from 'react-router-dom';
 import Description from '../components/Description';
+import { ReviewgApi } from '../Api/Review.api';
 
 const MainPage = () => {
     const [category, setCategory] = useState([]);
+    const [ratings, setRatings] = useState([]);
+
+    const [currentReviews, setCurrentReviews] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    useEffect(() => {
+        if (ratings.length > 0) {
+            const endIndex = Math.min(currentIndex + 2, ratings.length);
+            setCurrentReviews(ratings.slice(currentIndex, endIndex));
+            if (endIndex >= ratings.length) {
+                setTimeout(() => setCurrentIndex(0), 5000);
+            } else {
+                setTimeout(() => setCurrentIndex(currentIndex + 2), 5000);
+            }
+        }
+    }, [currentIndex, ratings])
+
+
     const { handleLoading } = useLoading()
 
     const containerRef = useRef(null);
@@ -48,9 +67,21 @@ const MainPage = () => {
             handleLoading(false);
         }
     };
+    const getAllRatingReviews = async () => {
+        handleLoading(true);
+        try {
+            const res = await ReviewgApi.getAllRatingReviews();
+            setRatings(res?.data?.data?.reviews);
+        } catch (error) {
+            console.log("Error", error);
+        } finally {
+            handleLoading(false);
+        }
+    };
 
     useEffect(() => {
         getAllCategory()
+        getAllRatingReviews()
     }, [])
 
 
@@ -453,8 +484,22 @@ const MainPage = () => {
                                     viewport={{ once: true }}
                                     className="absolute bottom-0 left-0 bg-white p-6 rounded-xl shadow-lg w-64 z-10"
                                 >
-                                    <p className="text-gray-700 italic mb-3">"OutBox changed how I think about fitness and community."</p>
-                                    <p className="font-bold text-primary">— Sarah K.</p>
+                                    {currentReviews[0] && (
+                                        <>
+                                            <p className="text-gray-700 italic mb-3">
+                                                {currentReviews[0].review.length > 100
+                                                    ? `${currentReviews[0].review.substring(0, 100)}...`
+                                                    : currentReviews[0].review}
+                                            </p>
+                                            <p className="font-bold text-primary">
+                                                — {currentReviews[0].created_by.first_name}
+                                                <span className="text-yellow-400 ml-1">
+                                                    {'★'.repeat(currentReviews[0].rating)}
+                                                    {'☆'.repeat(5 - currentReviews[0].rating)}
+                                                </span>
+                                            </p>
+                                        </>
+                                    )}
                                 </motion.div>
 
                                 <motion.div
@@ -464,8 +509,22 @@ const MainPage = () => {
                                     viewport={{ once: true }}
                                     className="absolute top-0 right-0 bg-third p-6 rounded-xl shadow-lg w-64 z-10 text-white"
                                 >
-                                    <p className="italic mb-3">"Finally found my tribe with OutBox!"</p>
-                                    <p className="font-bold">— Michael T.</p>
+                                    {currentReviews[1] && (
+                                        <>
+                                            <p className="italic mb-3">
+                                                {currentReviews[1].review.length > 100
+                                                    ? `${currentReviews[1].review.substring(0, 100)}...`
+                                                    : currentReviews[1].review}
+                                            </p>
+                                            <p className="font-bold">
+                                                — {currentReviews[1].created_by.first_name}
+                                                <span className="text-yellow-400 ml-1">
+                                                    {'★'.repeat(currentReviews[1].rating)}
+                                                    {'☆'.repeat(5 - currentReviews[1].rating)}
+                                                </span>
+                                            </p>
+                                        </>
+                                    )}
                                 </motion.div>
                             </motion.div>
                         </div>
@@ -515,18 +574,6 @@ const MainPage = () => {
                                                             whileHover={{ scale: 1.1 }}
                                                         />
                                                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-
-                                                        <div className="absolute top-4 left-4 z-10">
-                                                            {cat.cName === "fitness" ? (
-                                                                <img src={fitness} alt={cat.cName} className="h-8" />
-                                                            ) : cat.cName === "wellness" ? (
-                                                                <img src={wellness} alt={cat.cName} className="h-8" />
-                                                            ) : cat.cName === "liveness" ? (
-                                                                <img src={liveness} alt={cat.cName} className="h-8" />
-                                                            ) : (
-                                                                <span className="text-white font-bold text-lg">{cat.cName}</span>
-                                                            )}
-                                                        </div>
                                                     </div>
 
                                                     <div className="bg-white p-6">
